@@ -20,12 +20,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* // TODO: Create features section */}
       <section>
         <h2 className="text-lg font-semibold text-black mb-2 text-[24px] mt-[30px] mb-[30px] font-figtree">
           Features
         </h2>
-        {/* // ! Layout masih belum sesuai */}
         <div className="flex items-center gap-[30px]">
 
           {/* Subject Matter Expert */}
@@ -62,7 +60,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* // TODO: Create all files section */}
+      {/* All Files Section */}
       <section>
         <h2 className="text-lg font-semibold text-black mb-2 text-[24px] mt-[30px] mb-[30px] font-figtree">
           All Files
