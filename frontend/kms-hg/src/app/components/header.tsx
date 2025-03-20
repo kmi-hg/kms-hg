@@ -9,16 +9,19 @@ export default function Header() {
       {/* Menu */}
       <div className="flex items-center gap-[54px]">
         <div className="flex items-center gap-[40px]">
-          <a href="#" className="text-[#000000] text-[14px] font-medium">
+          <a
+            href="#"
+            className="text-[#000000] text-[14px] font-medium font-figtree"
+          >
             Idea Basket
           </a>
-          <a href="#" className="text-[#000000] text-[14px] font-medium">
+          <a href="#" className="text-[#000000] text-[14px] font-medium font-figtree">
             Knowledge Management System
           </a>
-          <a href="#" className="text-[#000000] text-[14px] font-medium">
+          <a href="#" className="text-[#000000] text-[14px] font-medium font-figtree">
             Innovation Management System
           </a>
-          <a href="#" className="text-[#000000] text-[14px] font-medium">
+          <a href="#" className="text-[#000000] text-[14px] font-medium font-figtree">
             Learning Management System
           </a>
         </div>
