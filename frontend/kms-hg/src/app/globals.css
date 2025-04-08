@@ -1,5 +1,7 @@
 @import "tailwindcss";
-
+@import "flowbite/src/themes/default";
+@plugin "flowbite/plugin";
+@source "../node_modules/flowbite";
 
 :root {
   --background: #ffffff;
@@ -11,7 +13,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-figtree: var(--font-figtree);
+  --font-figtree: var(--font-figtree);     
 }
 
 @media (prefers-color-scheme: dark) {
