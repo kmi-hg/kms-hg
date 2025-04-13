@@ -8,7 +8,7 @@ import {
   RecentlyOpenedCard,
   SearchBar,
   TabNavigation,
-} from "@/app/components";
+} from "@/app";
 import { FaCaretDown } from "react-icons/fa";
 import { useUpload } from "@/hooks/useUpload";
 import { useFilter } from "@/hooks/useFilter";
