@@ -1,40 +1,54 @@
 "use client";
 import { useState } from "react";
+import {
+  FeatureCard,
+  Header,
+  KnowledgeCard,
+  Modal,
+  RecentlyOpenedCard,
+  SearchBar,
+  TabNavigation,
+} from "@/app/components";
 import { FaCaretDown } from "react-icons/fa";
-import RecentlyOpenedCard from "@/app/components/recently-opened-card";
-import Header from "./components/header";
-import KnowledgeCard from "./components/knowledge-card";
-import Link from "next/link";
-import SearchBar from "./components/search-bar";
+import { useUpload } from "@/hooks/useUpload";
+import { useFilter } from "@/hooks/useFilter";
 
 export default function Home() {
-  const [isOpenFields, setIsOpenFields] = useState(false);
-  const [isOpenType, setIsOpenType] = useState(false);
-  const [selectedFields, setSelectedFields] = useState("Fields");
-  const [selectedType, setSelectedType] = useState("Type");
-
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-
+  const userRole = "KMI";
   const FieldsOptions = ["DSA", "JS", "Python", "Java", "C++"];
   const TypeOptions = ["DSA", "JS", "Python", "Java", "C++"];
+  const [activeTab, setActiveTab] = useState<"overview" | "add">("overview");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  const handleSelectFields = (value: string) => {
-    setSelectedFields(value);
-    setIsOpenFields(false);
-  };
+  const {
+    fileInputRef,
+    droppedFile,
+    isModalOpen,
+    openModal,
+    closeModal,
+    handleFileChange,
+    handleDrop,
+  } = useUpload();
 
-  const handleSelectType = (value: string) => {
-    setSelectedType(value);
-    setIsOpenType(false);
-  };
+  const {
+    selectedFields,
+    selectedType,
+    isOpenFields,
+    isOpenType,
+    setSelectedFields,
+    setSelectedType,
+    setIsOpenFields,
+    setIsOpenType,
+  } = useFilter();
 
   return (
     <div>
       <Header />
+      <Modal isOpen={isModalOpen} closeModal={closeModal} file={droppedFile} />
 
-      {/* Recently Opened Files Section */}
+      {/* Recently Opened */}
       <section>
-        <h2 className="text-lg font-semibold text-black mb-2 text-[24px] mt-[30px] mb-[30px] font-figtree">
+        <h2 className="text-[24px] mt-[30px] mb-[30px] font-semibold font-figtree text-black">
           Recently Opened
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[17px]">
@@ -44,68 +58,42 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Features */}
       <section>
-        <h2 className="text-lg font-semibold text-black mb-2 text-[24px] mt-[30px] mb-[30px] font-figtree">
+        <h2 className="text-[24px] mt-[30px] mb-[30px] font-semibold font-figtree text-black">
           Features
         </h2>
         <div className="flex items-center gap-[30px]">
-          {/* Subject Matter Expert */}
-          <Link href="/subject-matter-expert" passHref>
-            <div
-              className="flex items-center w-full lg:w-[325px] h-[77px] bg-white rounded-[12px] p-4 gap-4"
-              style={{ boxShadow: "0px 0px 5.6px 0px rgba(0, 0, 0, 0.25)" }}
-            >
-              <div className="w-[48px] h-[48px] bg-[#3D5AFE] flex items-center justify-center rounded-full">
-                <div className="h-[30px] w-[30px]">
-                  <img src="SME_Icon.png" alt="Subject Matter Expert" />
-                </div>
-              </div>
-              <div>
-                <h3 className="text-black font-semibold text-[18px] font-figtree">
-                  Subject Matter Expert
-                </h3>
-                <p className="text-[#595959] font-semibold text-[14px] font-figtree">
-                  Ask the Expert
-                </p>
-              </div>
-            </div>
-          </Link>
-
-          {/* Hasnur Chat */}
-          <div
-            className="flex items-center w-full lg:w-[325px] h-[77px] bg-white rounded-[12px] p-4 gap-4"
-            style={{ boxShadow: "0px 0px 5.6px 0px rgba(0, 0, 0, 0.25)" }}
-          >
-            <div className="w-[48px] h-[48px] bg-[#3D5AFE] flex items-center justify-center rounded-full">
-              <div className="h-[30px] w-[30px]">
-                <img src="HasnurChat_Icon.png" alt="Hasnur Chat" />
-              </div>
-            </div>
-            <div>
-              <h3 className="text-black font-semibold text-[18px] font-figtree">
-                Hasnur Chat
-              </h3>
-              <p className="text-[#595959] font-semibold text-[14px] font-figtree">
-                Ask the AI
-              </p>
-            </div>
-          </div>
+          <FeatureCard
+            href="/subject-matter-expert"
+            iconSrc="SME_Icon.png"
+            title="Subject Matter Expert"
+            description="Ask the Expert"
+          />
+          <FeatureCard
+            href="#"
+            iconSrc="HasnurChat_Icon.png"
+            title="Hasnur Chat"
+            description="Ask the AI"
+          />
         </div>
       </section>
 
       {/* All Files Section */}
-      <section>
-        <h2 className="text-lg font-semibold text-black mb-2 text-[24px] mt-[30px] mb-[30px] font-figtree">
+      <section className="mt-[30px]">
+        <h2 className="text-[24px] font-semibold font-figtree text-black mb-[20px]">
           All Files
         </h2>
 
-        {/* Search & Filter Bar */}
-        <div className="w-full h-[70px] border border-[#c2c2c2] rounded-[12px] px-[23.5px] py-[14px] flex gap-[13px] justify-center">
-          {/* Search Bar */}
+        {userRole === "KMI" && (
+          <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
+        )}
+
+        {/* Search Bar & Filters */}
+        <div className="w-full h-[70px] border border-[#c2c2c2] rounded-[12px] px-[23.5px] py-[14px] flex gap-[13px] justify-center items-center mb-[20px]">
           <SearchBar />
-          <div className="w-[320px] h-full flex items-center justify-center rounded-[8px] gap-[12px]">
-            {/* Fields Filtering */}
+          <div className="flex items-center gap-[12px]">
+            {/* Fields Filter */}
             <div className="relative w-[105px]">
               <button
                 onClick={() => setIsOpenFields(!isOpenFields)}
@@ -114,34 +102,40 @@ export default function Home() {
                 <span className="text-[#6C6C6C] text-[10px]">
                   {selectedFields}
                 </span>
-                <div className="flex justify-end items-center">
+                <div className="flex items-center">
                   <FaCaretDown className="text-[#6C6C6C] text-[10px]" />
                   {selectedFields !== "Fields" && (
-                    <button
-                      onClick={() => setSelectedFields("Fields")}
-                      className="text-[10px] text-gray-500"
+                    <span
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedFields("Fields");
+                      }}
+                      className="ml-1 text-[10px] text-gray-500 cursor-pointer"
                     >
                       ×
-                    </button>
+                    </span>
                   )}
                 </div>
               </button>
               {isOpenFields && (
                 <div className="absolute top-[28px] left-0 w-[105px] bg-white border border-[#EBEBEB] rounded-[4px] shadow-sm z-10">
-                  {FieldsOptions.map((FieldsOptions) => (
+                  {FieldsOptions.map((field) => (
                     <div
-                      key={FieldsOptions}
-                      onClick={() => handleSelectFields(FieldsOptions)}
+                      key={field}
+                      onClick={() => {
+                        setSelectedFields(field);
+                        setIsOpenFields(false);
+                      }}
                       className="px-2 py-1 text-[10px] text-[#6C6C6C] hover:bg-gray-100 cursor-pointer"
                     >
-                      {FieldsOptions}
+                      {field}
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Type Filtering */}
+            {/* Type Filter */}
             <div className="relative w-[105px]">
               <button
                 onClick={() => setIsOpenType(!isOpenType)}
@@ -150,43 +144,40 @@ export default function Home() {
                 <span className="text-[#6C6C6C] text-[10px]">
                   {selectedType}
                 </span>
-                <div className="flex justify-end items-center">
+                <div className="flex items-center">
                   <FaCaretDown className="text-[#6C6C6C] text-[10px]" />
                   {selectedType !== "Type" && (
-                    <button
-                      onClick={() => setSelectedType("Type")}
-                      className="ml-1 text-[10px] text-gray-500"
+                    <span
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedType("Type");
+                      }}
+                      className="ml-1 text-[10px] text-gray-500 cursor-pointer"
                     >
                       ×
-                    </button>
+                    </span>
                   )}
                 </div>
               </button>
               {isOpenType && (
                 <div className="absolute top-[28px] left-0 w-[105px] bg-white border border-[#EBEBEB] rounded-[4px] shadow-sm z-10">
-                  {TypeOptions.map((TypeOptions) => (
+                  {TypeOptions.map((type) => (
                     <div
-                      key={TypeOptions}
-                      onClick={() => handleSelectType(TypeOptions)}
+                      key={type}
+                      onClick={() => {
+                        setSelectedType(type);
+                        setIsOpenType(false);
+                      }}
                       className="px-2 py-1 text-[10px] text-[#6C6C6C] hover:bg-gray-100 cursor-pointer"
                     >
-                      {TypeOptions}
+                      {type}
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Bookmark */}
-            <div className="w-[21px] h-[27px] cursor-pointer">
-              <img
-                src="Bookmark_Icon.png"
-                alt="Bookmark"
-                className="object-cover"
-              />
-            </div>
-
-            {/* Grid View Icon */}
+            {/* View Switch */}
             <div
               className="w-[25px] h-[25px] cursor-pointer"
               onClick={() => setViewMode("grid")}
@@ -198,11 +189,8 @@ export default function Home() {
                     : "Grid_View_Icon.png"
                 }
                 alt="Grid View"
-                className="object-cover"
               />
             </div>
-
-            {/* List View Icon */}
             <div
               className="w-[25px] h-[25px] cursor-pointer"
               onClick={() => setViewMode("list")}
@@ -214,23 +202,62 @@ export default function Home() {
                     : "List_View_Icon.png"
                 }
                 alt="List View"
-                className="object-cover"
               />
             </div>
           </div>
         </div>
 
-        {/* GRID or LIST VIEW */}
-        {viewMode === "grid" ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 lg:gap-[17px] mt-[20px]">
-            {[...Array(12)].map((_, index) => (
-              <KnowledgeCard key={index} />
-            ))}
-          </div>
+        {/* Main Content */}
+        {activeTab === "overview" ? (
+          viewMode === "grid" ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 lg:gap-[17px]">
+              {[...Array(12)].map((_, index) => (
+                <KnowledgeCard key={index} />
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center w-full h-[200px]">
+              <p className="text-gray-400 text-sm font-figtree">
+                No file added
+              </p>
+            </div>
+          )
         ) : (
-          <div className="flex items-center justify-center w-full h-[200px] mt-[20px]">
-            <p className="text-gray-400 text-sm font-figtree">No file added</p>
-          </div>
+          <>
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept="application/pdf"
+              onChange={handleFileChange}
+              style={{ display: "none" }}
+            />
+            <div
+              className="w-full h-[250px] border border-dashed border-[#D9D9D9] bg-[#FCFBFC] rounded-[8px] flex flex-col items-center justify-center text-center px-4"
+              onClick={openModal}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={handleDrop}
+            >
+              <img
+                src="/upload_icon.png"
+                alt="Upload"
+                className="w-[20px] h-[25px] mb-2"
+              />
+              <div className="w-[300px]">
+                <p className="text-[#6B6B6B] text-[20px]">
+                  Drop your knowledge here, or{" "}
+                  <span
+                    className="text-[#3D5AFE] font-medium cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      fileInputRef.current?.click();
+                    }}
+                  >
+                    click to browse
+                  </span>
+                </p>
+              </div>
+            </div>
+          </>
         )}
       </section>
     </div>

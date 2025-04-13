@@ -7,13 +7,17 @@ export const metadata: Metadata = {
   description: "Knowledge Management System Hasnur Group",
 };
 
-const figtree = Figtree({ subsets: ["latin"], variable: "--font-figtree" });
+const figtree = Figtree({
+  subsets: ["latin"],
+  variable: "--font-figtree",
+  weight: ["400", "500", "600", "700"], // optional: customize weights
+});
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en" className={figtree.variable}>
       <body className="font-figtree">{children}</body>

@@ -4,7 +4,7 @@ export default function RecentlyOpenedCard() {
       {/* Thumbnail Image */}
       <div className="min-w-[80px] h-[80px] sm:h-[95px] sm:w-[95px] rounded-md overflow-hidden bg-gray-200 flex items-center justify-center">
         <img
-          src="/your-image-path.png"
+          src="/cth-knowledge.png"
           alt="SOPEP Document"
           className="object-cover w-full h-full"
         />
@@ -18,7 +18,7 @@ export default function RecentlyOpenedCard() {
         <p className="text-[14px] font-figtree text-gray-500 mt-1">
           Mei 31, 2022 • 2.3 MB
         </p>
-      </div> 
+      </div>
     </div>
   );
 }

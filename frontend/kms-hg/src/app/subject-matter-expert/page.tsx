@@ -1,7 +1,7 @@
-import SMECard from "../components/SMECard";
-import Breadcrumb from "../components/breadcrumb";
-import BreadcrumbItem from "../components/breadcrumbitem";
-import SearchBar from "../components/search-bar";
+import SMECard from "../components/cards/SMECard";
+import Breadcrumb from "../components/layout/breadcrumb";
+import BreadcrumbItem from "../components/layout/breadcrumbitem";
+import SearchBar from "../components/ui/SearchBar";
 
 export default function SMEPage() {
   // const dummyData = Array(20).fill({
@@ -23,7 +23,7 @@ export default function SMEPage() {
       <br />
 
       {/* Search Bar */}
-      <SearchBar/>
+      <SearchBar />
 
       <br />
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[17px]">

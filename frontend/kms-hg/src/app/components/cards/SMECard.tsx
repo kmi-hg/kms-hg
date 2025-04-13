@@ -8,8 +8,10 @@ export default function SMECard() {
         </div>
       </div>
       <div>
-        <h1 className="text-black font-bold text-[20px]">Teuku Fajar Akbar</h1>
-        <h2 className="text-gray-400 font-medium text-[16px]">
+        <h1 className="text-black font-semibold text-[20px]">
+          Teuku Fajar Akbar
+        </h1>
+        <h2 className="text-gray-400 font-semibold text-[16px]">
           teuku.fajar@hasnurgroup.com
         </h2>
       </div>
