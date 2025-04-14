@@ -1,7 +1,20 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
-// import * as schema from './schema'; // <-- if you're using Drizzle's schema definitions
+import "dotenv/config";
+import { PostgresJsDatabase, drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import * as schema from "./schema/knowledge";
 
-const queryClient = postgres(process.env.DATABASE_URL!); // make sure .env is loaded
+const connectionString = process.env.DATABASE_URL;
 
-// export const db = drizzle(queryClient, { schema });
+const drizzleClient = drizzle(
+  postgres(connectionString!, {
+    prepare: false,
+  }),
+  { schema },
+);
+
+declare global {
+  var database: PostgresJsDatabase<typeof schema> | undefined;
+}
+
+export const db = global.database || drizzleClient;
+if (process.env.NODE_ENV !== "production") global.database = db;
