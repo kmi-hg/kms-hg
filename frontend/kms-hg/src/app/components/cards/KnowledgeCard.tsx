@@ -11,12 +11,12 @@ export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
   return (
     <div
       onDoubleClick={handleDoubleClick}
-      className="cursor-pointer w-full bg-white rounded-[10px] border border-[#c2c2c2] shadow-[0px_1px_31.1px_-10px_rgba(0,0,0,0.25)] mt-[30px] pt-[25px] pb-[13px] mx-auto"
+      className="flex flex-col justify-between cursor-pointer w-full bg-white rounded-[10px] border border-[#c2c2c2] shadow-[0px_1px_31.1px_-10px_rgba(0,0,0,0.25)] mt-[30px] pt-[25px] pb-[13px] mx-auto"
     >
       {/* Header */}
-      <div className="w-full flex justify-between px-[18px]">
-        <div className="max-w-[230px]">
-          <p className="text-[18px] font-figtree font-semibold text-gray-900 leading-tight">
+      <div className="w-full flex justify-between px-[18px] mb-[10px]">
+        <div className="max-w-[230px] flex items-start">
+          <p className="text-[18px] font-figtree min-h-[95px] font-semibold text-gray-900 leading-tight overflow-hidden text-ellipsis">
             {item.name}
           </p>
         </div>

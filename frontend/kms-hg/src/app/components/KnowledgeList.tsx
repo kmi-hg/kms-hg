@@ -1,4 +1,3 @@
-// components/KnowledgeList.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -14,15 +13,28 @@ export default function KnowledgeList() {
       .then((res) => res.json())
       .then((data) => {
         setData(data);
-        console.log(data);
         setLoading(false);
       });
   }, []);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center w-full h-[200px]">
+        <p className="text-gray-400 text-sm font-figtree">Loading...</p>
+      </div>
+    );
+  }
+
+  if (data.length === 0) {
+    return (
+      <div className="flex items-center justify-center w-full h-[200px]">
+        <p className="text-gray-400 text-sm font-figtree">No file added</p>
+      </div>
+    );
+  }
 
   return (
-    <div>
+    <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 lg:gap-[17px]">
       {data.map((item) => (
         <KnowledgeCard key={item.id} item={item} />
       ))}

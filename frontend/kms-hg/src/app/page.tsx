@@ -211,8 +211,8 @@ export default function Home() {
         {/* Main Content */}
         {activeTab === "overview" ? (
           viewMode === "grid" ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 lg:gap-[17px]">
-              <KnowledgeList/>
+            <div>
+              <KnowledgeList />
             </div>
           ) : (
             <div className="flex items-center justify-center w-full h-[200px]">
