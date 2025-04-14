@@ -16,11 +16,14 @@ export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
       {/* Header */}
       <div className="w-full flex justify-between px-[18px] mb-[10px]">
         <div className="max-w-[230px] flex items-start">
-          <p className="text-[18px] font-figtree min-h-[95px] font-semibold text-gray-900 leading-tight overflow-hidden text-ellipsis">
+          <p
+            className="text-[18px] font-figtree font-semibold text-gray-900 leading-tight overflow-hidden text-ellipsis line-clamp-2"
+            title={item.name}
+          >
             {item.name}
           </p>
         </div>
-        <div className="h-[27px] w-[27px] bg-[#f7f7f7] rounded-[7px]"></div>
+        {/* <div className="h-[27px] w-[27px] bg-[#f7f7f7] rounded-[7px]"></div> */}
       </div>
 
       {/* File Info */}
@@ -46,7 +49,7 @@ export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
 
       {/* Footer */}
       <div className="flex w-full items-center justify-between mt-[15px] px-[18px]">
-        <p className="text-[14px] font-figtree text-gray-500">
+        <p className="text-[12px] font-figtree text-gray-500">
           {item.tags} •{" "}
           {new Date(item.uploadedAt).toLocaleDateString("id-ID", {
             day: "2-digit",
