@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import {
   FeatureCard,
@@ -6,18 +7,18 @@ import {
   KnowledgeCard,
   Modal,
   RecentlyOpenedCard,
-  SearchBar,
   TabNavigation,
 } from "@/app";
-import { FaCaretDown } from "react-icons/fa";
 import { useUpload } from "@/hooks/useUpload";
 import { useFilter } from "@/hooks/useFilter";
 import KnowledgeList from "./components/KnowledgeList";
+import FilterBar from "./components/ui/FIlterBar";
 
 export default function Home() {
   const userRole = "KMI";
   const FieldsOptions = ["DSA", "JS", "Python", "Java", "C++"];
   const TypeOptions = ["DSA", "JS", "Python", "Java", "C++"];
+
   const [activeTab, setActiveTab] = useState<"overview" | "add">("overview");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
@@ -86,127 +87,27 @@ export default function Home() {
           All Files
         </h2>
 
+        {/* Tab Navigation */}
         {userRole === "KMI" && (
           <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
         )}
 
-        {/* Search Bar & Filters */}
-        <div className="w-full h-[70px] border border-[#c2c2c2] rounded-[12px] px-[23.5px] py-[14px] flex gap-[13px] justify-center items-center mb-[20px]">
-          <SearchBar />
-          <div className="flex items-center gap-[12px]">
-            {/* Fields Filter */}
-            <div className="relative w-[105px]">
-              <button
-                onClick={() => setIsOpenFields(!isOpenFields)}
-                className="w-[105px] h-[26px] rounded-[4px] border border-[#EBEBEB] px-2 text-xs flex items-center justify-between"
-              >
-                <span className="text-[#6C6C6C] text-[10px]">
-                  {selectedFields}
-                </span>
-                <div className="flex items-center">
-                  <FaCaretDown className="text-[#6C6C6C] text-[10px]" />
-                  {selectedFields !== "Fields" && (
-                    <span
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedFields("Fields");
-                      }}
-                      className="ml-1 text-[10px] text-gray-500 cursor-pointer"
-                    >
-                      ×
-                    </span>
-                  )}
-                </div>
-              </button>
-              {isOpenFields && (
-                <div className="absolute top-[28px] left-0 w-[105px] bg-white border border-[#EBEBEB] rounded-[4px] shadow-sm z-10">
-                  {FieldsOptions.map((field) => (
-                    <div
-                      key={field}
-                      onClick={() => {
-                        setSelectedFields(field);
-                        setIsOpenFields(false);
-                      }}
-                      className="px-2 py-1 text-[10px] text-[#6C6C6C] hover:bg-gray-100 cursor-pointer"
-                    >
-                      {field}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Type Filter */}
-            <div className="relative w-[105px]">
-              <button
-                onClick={() => setIsOpenType(!isOpenType)}
-                className="w-[105px] h-[26px] rounded-[4px] border border-[#EBEBEB] px-2 text-xs flex items-center justify-between"
-              >
-                <span className="text-[#6C6C6C] text-[10px]">
-                  {selectedType}
-                </span>
-                <div className="flex items-center">
-                  <FaCaretDown className="text-[#6C6C6C] text-[10px]" />
-                  {selectedType !== "Type" && (
-                    <span
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedType("Type");
-                      }}
-                      className="ml-1 text-[10px] text-gray-500 cursor-pointer"
-                    >
-                      ×
-                    </span>
-                  )}
-                </div>
-              </button>
-              {isOpenType && (
-                <div className="absolute top-[28px] left-0 w-[105px] bg-white border border-[#EBEBEB] rounded-[4px] shadow-sm z-10">
-                  {TypeOptions.map((type) => (
-                    <div
-                      key={type}
-                      onClick={() => {
-                        setSelectedType(type);
-                        setIsOpenType(false);
-                      }}
-                      className="px-2 py-1 text-[10px] text-[#6C6C6C] hover:bg-gray-100 cursor-pointer"
-                    >
-                      {type}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* View Switch */}
-            <div
-              className="w-[25px] h-[25px] cursor-pointer"
-              onClick={() => setViewMode("grid")}
-            >
-              <img
-                src={
-                  viewMode === "grid"
-                    ? "Grid_View_Active_Icon.png"
-                    : "Grid_View_Icon.png"
-                }
-                alt="Grid View"
-              />
-            </div>
-            <div
-              className="w-[25px] h-[25px] cursor-pointer"
-              onClick={() => setViewMode("list")}
-            >
-              <img
-                src={
-                  viewMode === "list"
-                    ? "List_View_Active_Icon.png"
-                    : "List_View_Icon.png"
-                }
-                alt="List View"
-              />
-            </div>
-          </div>
-        </div>
+        {/* FilterBar - tampil di semua tab */}
+        <FilterBar
+          selectedFields={selectedFields}
+          setSelectedFields={setSelectedFields}
+          isOpenFields={isOpenFields}
+          setIsOpenFields={setIsOpenFields}
+          selectedType={selectedType}
+          setSelectedType={setSelectedType}
+          isOpenType={isOpenType}
+          setIsOpenType={setIsOpenType}
+          FieldsOptions={FieldsOptions}
+          TypeOptions={TypeOptions}
+          viewMode={viewMode}
+          setViewMode={setViewMode}
+          isOverview={activeTab === "overview"}
+        />
 
         {/* Main Content */}
         {activeTab === "overview" ? (
