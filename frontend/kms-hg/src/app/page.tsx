@@ -12,6 +12,7 @@ import {
 import { FaCaretDown } from "react-icons/fa";
 import { useUpload } from "@/hooks/useUpload";
 import { useFilter } from "@/hooks/useFilter";
+import KnowledgeList from "./components/KnowledgeList";
 
 export default function Home() {
   const userRole = "KMI";
@@ -211,9 +212,7 @@ export default function Home() {
         {activeTab === "overview" ? (
           viewMode === "grid" ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 lg:gap-[17px]">
-              {[...Array(12)].map((_, index) => (
-                <KnowledgeCard key={index} />
-              ))}
+              <KnowledgeList/>
             </div>
           ) : (
             <div className="flex items-center justify-center w-full h-[200px]">
