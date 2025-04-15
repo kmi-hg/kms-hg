@@ -16,5 +16,12 @@ declare global {
   var database: PostgresJsDatabase<typeof schema> | undefined;
 }
 
-export const db = global.database || drizzleClient;
-if (process.env.NODE_ENV !== "production") global.database = db;
+const globalForDB = globalThis as typeof globalThis & {
+  database?: PostgresJsDatabase<typeof schema>;
+};
+
+export const db = globalForDB.database ?? drizzleClient;
+
+if (process.env.NODE_ENV !== "production") {
+  globalForDB.database = db;
+}

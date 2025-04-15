@@ -1,5 +1,4 @@
 import { KnowledgeItem } from "@/types";
-import { FaBookmark } from "react-icons/fa";
 
 export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
   const handleDoubleClick = () => {
