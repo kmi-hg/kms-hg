@@ -1,9 +1,11 @@
+import Image from 'next/image'
+
 export default function Header() {
     return (
       <div className="xl:w-full xl:h-[82px] bg-[#ffffff] rounded-[20px] border border-[#e0e0e0] px-[22px] py-[19px] flex items-center justify-between">
         {/* Logo Hasnur */}
         <div className="w-[45px] h-[45px]">
-          <img src="logo-hasnur-group.png" alt="Hasnur Group" />
+          <Image src="logo-hasnur-group.png" alt="Hasnur Group" />
         </div>
   
         {/* Menu */}
@@ -27,10 +29,10 @@ export default function Header() {
           </div>
           <div className="flex items-center gap-[6px]">
             <div className="h-[30px] w-[30px]">
-              <img src="profile.png" alt="Hasnur Group" />
+              <Image src="profile.png" alt="Hasnur Group" />
             </div>
             <div className="h-[16px] w-[16px]">
-              <img src="dropdown.png" alt="Hasnur Group" />
+              <Image src="dropdown.png" alt="Hasnur Group" />
             </div>
           </div>
         </div>

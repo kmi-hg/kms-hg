@@ -1,4 +1,5 @@
 import { FaCaretDown } from "react-icons/fa";
+import Image from 'next/image'
 
 interface FilterBarProps {
   selectedFields: string;
@@ -127,7 +128,7 @@ export default function FilterBar({
               className="w-[25px] h-[25px] cursor-pointer"
               onClick={() => setViewMode("grid")}
             >
-              <img
+              <Image
                 src={
                   viewMode === "grid"
                     ? "Grid_View_Active_Icon.png"
@@ -140,7 +141,7 @@ export default function FilterBar({
               className="w-[25px] h-[25px] cursor-pointer"
               onClick={() => setViewMode("list")}
             >
-              <img
+              <Image
                 src={
                   viewMode === "list"
                     ? "List_View_Active_Icon.png"

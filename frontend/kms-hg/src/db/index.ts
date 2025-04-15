@@ -13,7 +13,7 @@ const drizzleClient = drizzle(
 );
 
 declare global {
-  var database: PostgresJsDatabase<typeof schema> | undefined;
+  const database: PostgresJsDatabase<typeof schema> | undefined;
 }
 
 const globalForDB = globalThis as typeof globalThis & {

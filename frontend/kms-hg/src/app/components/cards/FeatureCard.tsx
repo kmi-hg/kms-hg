@@ -1,5 +1,6 @@
 // /components/FeatureCard.tsx
 import Link from "next/link";
+import Image from 'next/image'
 
 export default function FeatureCard({
   href,
@@ -20,7 +21,7 @@ export default function FeatureCard({
       >
         <div className="w-[48px] h-[48px] bg-[#3D5AFE] flex items-center justify-center rounded-full">
           <div className="h-[30px] w-[30px]">
-            <img src={iconSrc} alt={title} />
+            <Image src={iconSrc} alt={title} />
           </div>
         </div>
         <div>

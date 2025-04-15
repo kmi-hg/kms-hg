@@ -1,4 +1,5 @@
 import { KnowledgeItem } from "@/types";
+import Image from 'next/image'
 
 export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
   const handleDoubleClick = () => {
@@ -37,7 +38,7 @@ export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
 
       {/* Gambar tengah */}
       <div className="w-full flex items-center justify-center px-[18px] mt-[25px] mb-[25px]">
-        <img
+        <Image
           src="cth-knowledge.png"
           alt="Hasnur Group"
           className="w-full h-auto max-h-[162px] object-contain"

@@ -12,6 +12,7 @@ import { useUpload } from "@/hooks/useUpload";
 import { useFilter } from "@/hooks/useFilter";
 import KnowledgeList from "./components/KnowledgeList";
 import FilterBar from "./components/ui/FIlterBar";
+import Image from 'next/image'
 
 export default function Home() {
   const userRole = "KMI";
@@ -136,7 +137,7 @@ export default function Home() {
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleDrop}
             >
-              <img
+              <Image
                 src="/upload_icon.png"
                 alt="Upload"
                 className="w-[20px] h-[25px] mb-2"
