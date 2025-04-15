@@ -1,6 +1,6 @@
 // app/api/knowledge/route.ts
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { db } from '../../../db';
 import { knowledgeTable } from '../../../db/schema/knowledge';
 
 export async function GET() {
