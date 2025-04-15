@@ -12,21 +12,34 @@ const Modal = ({
   file: File | null;
 }) => {
   const categories = ["Training", "Hasnur Talks", "Hasnur Weekly Insight"];
+
   const [selectedCategory, setSelectedCategory] = useState("");
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [documentName, setDocumentName] = useState("");
+  const [field, setField] = useState("");
   const [uploadedFile, setUploadedFile] = useState<File | null>(file);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const fieldOptions = [
+    "Corsec/Corplan",
+    "Operation",
+    "HCGS",
+    "Procurement",
+    "Others",
+    "Fleet Mgt",
+    "FAT",
+    "GRCD",
+    "Legal & permit",
+    "Marketing & Sales",
+  ];
+  
 
   useEffect(() => {
     setUploadedFile(file);
   }, [file]);
 
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-
+    document.body.style.overflow = isOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
@@ -34,9 +47,7 @@ const Modal = ({
 
   if (!isOpen) return null;
 
-  const handleBrowseClick = () => {
-    fileInputRef.current?.click();
-  };
+  const handleBrowseClick = () => fileInputRef.current?.click();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selected = event.target.files?.[0];
@@ -50,6 +61,42 @@ const Modal = ({
 
   const handleCategoryClick = (category: string) => {
     setSelectedCategory(category);
+  };
+
+  const handleUpload = async () => {
+    if (!uploadedFile || !documentName || !field || !selectedCategory) {
+      alert("Please fill all fields before uploading.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", uploadedFile);
+    formData.append("name", documentName);
+    formData.append("field", field);
+    formData.append("tags", selectedCategory);
+
+    try {
+      const res = await fetch("/api/knowledge", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (res.ok) {
+        alert("Upload successful!");
+        closeModal();
+        // Optional: reset form
+        setDocumentName("");
+        setField("");
+        setSelectedCategory("");
+        setUploadedFile(null);
+      } else {
+        const err = await res.json();
+        alert(`Upload failed: ${err.error || "unknown error"}`);
+      }
+    } catch (error) {
+      alert("An unexpected error occurred.");
+      console.error(error);
+    }
   };
 
   return (
@@ -114,6 +161,8 @@ const Modal = ({
               </label>
               <input
                 type="text"
+                value={documentName}
+                onChange={(e) => setDocumentName(e.target.value)}
                 className="w-full border border-[#D9D9D9] rounded-md h-[38px] px-3 text-sm text-black"
               />
             </div>
@@ -121,10 +170,19 @@ const Modal = ({
               <label className="text-[16px] font-semibold text-black mb-[10px]">
                 Fields
               </label>
-              <input
-                type="text"
-                className="w-full border border-[#D9D9D9] rounded-md h-[38px] px-3 text-sm text-black"
-              />
+              <select
+  value={field}
+  onChange={(e) => setField(e.target.value)}
+  className="w-full border border-[#D9D9D9] rounded-md h-[38px] px-3 text-sm text-black"
+>
+  <option value="" disabled>Select a field</option>
+  {fieldOptions.map((option) => (
+    <option key={option} value={option}>
+      {option}
+    </option>
+  ))}
+</select>
+
             </div>
           </div>
 
@@ -156,7 +214,10 @@ const Modal = ({
         </div>
 
         <div className="w-full h-full flex items-center justify-end border-t border-[#E5E5E5] pr-[35px]">
-          <button className="w-[115px] h-[41px] bg-[#3D5AFE] text-white px-6 py-2 rounded-[8px] text-[16px] font-semibold hover:bg-[#2c47e3] transition-all">
+          <button
+            onClick={handleUpload}
+            className="w-[115px] h-[41px] bg-[#3D5AFE] text-white px-6 py-2 rounded-[8px] text-[16px] font-semibold hover:bg-[#2c47e3] transition-all"
+          >
             Upload
           </button>
         </div>
