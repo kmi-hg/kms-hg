@@ -68,13 +68,13 @@ export default function Home() {
         <div className="flex items-center gap-[30px]">
           <FeatureCard
             href="/subject-matter-expert"
-            iconSrc="SME_Icon.png"
+            iconSrc="/SME_Icon.png"
             title="Subject Matter Expert"
             description="Ask the Expert"
           />
           <FeatureCard
             href="#"
-            iconSrc="HasnurChat_Icon.png"
+            iconSrc="/HasnurChat_Icon.png"
             title="Hasnur Chat"
             description="Ask the AI"
           />
@@ -141,6 +141,8 @@ export default function Home() {
                 src="/upload_icon.png"
                 alt="Upload"
                 className="w-[20px] h-[25px] mb-2"
+                width={20}
+                height={25}
               />
               <div className="w-[300px]">
                 <p className="text-[#6B6B6B] text-[20px]">

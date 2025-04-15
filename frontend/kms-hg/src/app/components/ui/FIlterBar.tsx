@@ -1,5 +1,5 @@
 import { FaCaretDown } from "react-icons/fa";
-import Image from 'next/image'
+import Image from "next/image";
 
 interface FilterBarProps {
   selectedFields: string;
@@ -125,29 +125,35 @@ export default function FilterBar({
         {isOverview && (
           <>
             <div
-              className="w-[25px] h-[25px] cursor-pointer"
+              className="w-[25px] h-[25px] cursor-pointer relative"
               onClick={() => setViewMode("grid")}
             >
               <Image
                 src={
                   viewMode === "grid"
-                    ? "Grid_View_Active_Icon.png"
-                    : "Grid_View_Icon.png"
+                    ? "/Grid_View_Active_Icon.png"
+                    : "/Grid_View_Icon.png"
                 }
                 alt="Grid View"
+                fill
+                className="object-contain"
+                sizes="25px"
               />
             </div>
             <div
-              className="w-[25px] h-[25px] cursor-pointer"
+              className="w-[25px] h-[25px] cursor-pointer relative"
               onClick={() => setViewMode("list")}
             >
               <Image
                 src={
                   viewMode === "list"
-                    ? "List_View_Active_Icon.png"
-                    : "List_View_Icon.png"
+                    ? "/List_View_Active_Icon.png"
+                    : "/List_View_Icon.png"
                 }
                 alt="List View"
+                fill
+                className="object-contain"
+                sizes="25px"
               />
             </div>
           </>

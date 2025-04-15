@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import Image from 'next/image'
+import Image from "next/image";
 
 const Modal = ({
   isOpen,
@@ -85,7 +85,9 @@ const Modal = ({
             <Image
               src="/upload_icon.png"
               alt="upload"
-              className="w-[27px] h-[33px] mb-2"
+              className="mb-2"
+              width={27}
+              height={33}
             />
             <div className="w-[240px] text-center flex flex-col items-center justify-center px-4">
               <p className="text-[15px] text-[#7A7A7A] font-medium">

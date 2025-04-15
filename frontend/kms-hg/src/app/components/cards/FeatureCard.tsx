@@ -1,6 +1,6 @@
 // /components/FeatureCard.tsx
 import Link from "next/link";
-import Image from 'next/image'
+import Image from "next/image";
 
 export default function FeatureCard({
   href,
@@ -21,12 +21,16 @@ export default function FeatureCard({
       >
         <div className="w-[48px] h-[48px] bg-[#3D5AFE] flex items-center justify-center rounded-full">
           <div className="h-[30px] w-[30px]">
-            <Image src={iconSrc} alt={title} />
+            <Image src={iconSrc} alt={title} width={30} height={30} />
           </div>
         </div>
         <div>
-          <h3 className="text-black font-semibold text-[18px] font-figtree">{title}</h3>
-          <p className="text-[#595959] font-semibold text-[14px] font-figtree">{description}</p>
+          <h3 className="text-black font-semibold text-[18px] font-figtree">
+            {title}
+          </h3>
+          <p className="text-[#595959] font-semibold text-[14px] font-figtree">
+            {description}
+          </p>
         </div>
       </div>
     </Link>
