@@ -13,24 +13,25 @@ export function useUpload() {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file && file.type === "application/pdf") {
+    if (file && (file.type === "application/pdf" || file.type === "audio/mpeg")) {
       setDroppedFile(file);
       openModal();
     } else {
-      alert("Only PDF files are allowed.");
+      alert("Only PDF or MP3 files are allowed.");
     }
   };
-
+  
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     const file = event.dataTransfer.files[0];
-    if (file && file.type === "application/pdf") {
+    if (file && (file.type === "application/pdf" || file.type === "audio/mpeg")) {
       setDroppedFile(file);
       openModal();
     } else {
-      alert("Only PDF files are allowed.");
+      alert("Only PDF or MP3 files are allowed.");
     }
   };
+  
 
   return {
     fileInputRef,

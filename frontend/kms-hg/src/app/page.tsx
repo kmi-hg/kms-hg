@@ -129,7 +129,7 @@ export default function Home() {
             <input
               type="file"
               ref={fileInputRef}
-              accept="application/pdf"
+              accept=".pdf, .mp3"
               onChange={handleFileChange}
               style={{ display: "none" }}
             />
