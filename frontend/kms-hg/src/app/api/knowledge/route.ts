@@ -3,6 +3,8 @@ import { knowledgeTable } from "@/db/schema/knowledge";
 import { db } from "./db";
 import { createClient } from "@supabase/supabase-js";
 import { v4 as uuidv4 } from "uuid";
+import { eq } from "drizzle-orm";
+
 
 const BUCKET_NAME = "knowledge-pdf";
 
@@ -122,3 +124,35 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ message: "Upload successful." });
 }
+
+export async function DELETE(req: Request) {
+  const { id, path, type } = await req.json();
+
+  if (!id || !path || !type) {
+    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+  }
+
+  const filePath = path.split("/").pop();
+  const bucket = type === "pdf" ? "knowledge-pdf" : "knowledge-audio";
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  // Delete file from bucket
+  const { error: storageError } = await supabase.storage
+    .from(bucket)
+    .remove([filePath]);
+
+  if (storageError) {
+    console.error("Failed to delete file from storage:", storageError);
+    return NextResponse.json({ error: "Failed to delete from storage" }, { status: 500 });
+  }
+
+  // Delete from DB
+  await db.delete(knowledgeTable).where(eq(knowledgeTable.id, Number(id)));
+
+  return NextResponse.json({ message: "Deleted successfully" });
+}
+
