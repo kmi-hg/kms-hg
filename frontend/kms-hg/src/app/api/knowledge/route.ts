@@ -32,7 +32,6 @@ export async function POST(req: Request) {
   const field = formData.get("field")?.toString().trim();
   const tags = formData.get("tags")?.toString().trim();
 
-  // Validate required fields
   if (
     !rawFile ||
     typeof rawFile !== "object" ||
@@ -42,7 +41,7 @@ export async function POST(req: Request) {
     !tags
   ) {
     return NextResponse.json(
-      { error: "All fields and a PDF file are required." },
+      { error: "All fields and a file are required." },
       { status: 400 }
     );
   }
@@ -65,18 +64,32 @@ export async function POST(req: Request) {
   }
 
   const file = rawFile as File;
-  const fileName = `${uuidv4()}.pdf`;
+
+  const isPDF = file.type === "application/pdf";
+  const isMP3 = file.type === "audio/mpeg";
+
+  if (!isPDF && !isMP3) {
+    return NextResponse.json(
+      { error: "Only PDF or MP3 files are allowed." },
+      { status: 400 }
+    );
+  }
+
+  const fileExt = isPDF ? "pdf" : "mp3";
+  const bucket = isPDF ? "knowledge-pdf" : "knowledge-mp3";
+  const contentType = isPDF ? "application/pdf" : "audio/mpeg";
+
+  const fileName = `${uuidv4()}.${fileExt}`;
 
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  // Upload to Supabase Storage
   const { error: uploadError } = await supabase.storage
-    .from(BUCKET_NAME)
+    .from(bucket)
     .upload(fileName, file, {
-      contentType: "application/pdf",
+      contentType,
     });
 
   if (uploadError) {
@@ -85,11 +98,10 @@ export async function POST(req: Request) {
   }
 
   const { data: publicUrlData } = supabase.storage
-    .from(BUCKET_NAME)
+    .from(bucket)
     .getPublicUrl(fileName);
 
   const publicUrl = publicUrlData?.publicUrl;
-
   if (!publicUrl) {
     return NextResponse.json(
       { error: "Failed to generate public URL." },
@@ -99,15 +111,11 @@ export async function POST(req: Request) {
 
   const fileSizeMB = file.size / 1024 / 1024;
 
-  console.log("Uploaded file:", fileName);
-  console.log("Public URL:", publicUrl);
-
-  // Insert into DB
   await db.insert(knowledgeTable).values({
     name,
     field: field as FieldEnum,
     tags,
-    type: "pdf",
+    type: fileExt as "pdf" | "mp3",
     path: publicUrl,
     size: parseFloat(fileSizeMB.toFixed(2)),
   });

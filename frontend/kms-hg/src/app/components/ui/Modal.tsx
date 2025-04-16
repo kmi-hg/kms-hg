@@ -32,7 +32,6 @@ const Modal = ({
     "Legal & permit",
     "Marketing & Sales",
   ];
-  
 
   useEffect(() => {
     setUploadedFile(file);
@@ -51,11 +50,16 @@ const Modal = ({
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selected = event.target.files?.[0];
-    if (selected && selected.type === "application/pdf") {
-      setUploadedFile(selected);
-      console.log("Modal - selected file:", selected.name);
-    } else {
-      alert("Only PDF files are allowed.");
+    if (selected) {
+      const isPDF = selected.type === "application/pdf";
+      const isMP3 = selected.type === "audio/mpeg";
+
+      if (isPDF || isMP3) {
+        setUploadedFile(selected);
+        console.log("Modal - selected file:", selected.name);
+      } else {
+        alert("Only PDF or MP3 files are allowed.");
+      }
     }
   };
 
@@ -122,7 +126,7 @@ const Modal = ({
 
           <input
             type="file"
-            accept="application/pdf"
+            accept=".pdf, .mp3"
             ref={fileInputRef}
             onChange={handleFileChange}
             style={{ display: "none" }}
@@ -171,18 +175,19 @@ const Modal = ({
                 Fields
               </label>
               <select
-  value={field}
-  onChange={(e) => setField(e.target.value)}
-  className="w-full border border-[#D9D9D9] rounded-md h-[38px] px-3 text-sm text-black"
->
-  <option value="" disabled>Select a field</option>
-  {fieldOptions.map((option) => (
-    <option key={option} value={option}>
-      {option}
-    </option>
-  ))}
-</select>
-
+                value={field}
+                onChange={(e) => setField(e.target.value)}
+                className="w-full border border-[#D9D9D9] rounded-md h-[38px] px-3 text-sm text-black"
+              >
+                <option value="" disabled>
+                  Select a field
+                </option>
+                {fieldOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 

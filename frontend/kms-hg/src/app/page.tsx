@@ -12,7 +12,8 @@ import { useUpload } from "@/hooks/useUpload";
 import { useFilter } from "@/hooks/useFilter";
 import KnowledgeList from "./components/KnowledgeList";
 import FilterBar from "./components/ui/FIlterBar";
-import Image from 'next/image'
+import Image from "next/image";
+import KnowledgeTable from "./components/KnowledgeTable";
 
 export default function Home() {
   const userRole = "KMI";
@@ -124,6 +125,7 @@ export default function Home() {
           )
         ) : (
           <>
+            {/* Upload Area */}
             <input
               type="file"
               ref={fileInputRef}
@@ -159,6 +161,9 @@ export default function Home() {
                 </p>
               </div>
             </div>
+
+            {/* List Uploaded Knowledge */}
+            <KnowledgeTable />
           </>
         )}
       </section>
