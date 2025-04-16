@@ -1,9 +1,30 @@
+"use client";
+
 import { KnowledgeItem } from "@/types";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
+  const router = useRouter();
+
   const handleDoubleClick = () => {
-    if (item.path) {
+    if (item.path && item.path.toLowerCase().trim().endsWith(".mp3")) {
+      const track = {
+        title: item.name,
+        artist: "Unknown Artist",
+        src: item.path,
+      };
+      localStorage.setItem("selectedTrack", JSON.stringify(track));
+
+      // Generate slug from filename (remove extension and format)
+      const slug = item.name
+        .toLowerCase()
+        .replace(/\.[^/.]+$/, "") // remove extension
+        .replace(/\s+/g, "-") // spaces to dashes
+        .replace(/[^a-z0-9\-]/g, ""); // remove other chars
+
+      router.push(`/audio-page/${slug}`);
+    } else if (item.path) {
       window.open(item.path, "_blank");
     }
   };
