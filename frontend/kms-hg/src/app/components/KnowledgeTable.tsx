@@ -2,10 +2,13 @@
 import { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { KnowledgeItem } from "@/types";
+import Modal from "@/app/components/ui/Modal";
 
 export default function KnowledgeTable() {
   const [knowledgeItems, setKnowledgeItems] = useState<KnowledgeItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editData, setEditData] = useState<KnowledgeItem | null>(null);
 
   useEffect(() => {
     const fetchKnowledge = async () => {
@@ -13,10 +16,10 @@ export default function KnowledgeTable() {
         const res = await fetch("/api/knowledge");
         const data: KnowledgeItem[] = await res.json();
 
-        // Sort by newest uploadedAt
         const sortedData = data.sort(
           (a, b) =>
-            new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
+            new Date(b.uploadedAt).getTime() -
+            new Date(a.uploadedAt).getTime()
         );
 
         setKnowledgeItems(sortedData);
@@ -29,10 +32,6 @@ export default function KnowledgeTable() {
 
     fetchKnowledge();
   }, []);
-
-  if (loading) {
-    return <p className="text-gray-500 text-sm px-4 py-2">Loading...</p>;
-  }
 
   const handleDelete = async (
     id: number,
@@ -63,6 +62,10 @@ export default function KnowledgeTable() {
     }
   };
 
+  if (loading) {
+    return <p className="text-gray-500 text-sm px-4 py-2">Loading...</p>;
+  }
+
   return (
     <div className="overflow-x-auto border rounded-lg">
       <table className="min-w-full text-left text-[16px] text-gray-600">
@@ -78,8 +81,8 @@ export default function KnowledgeTable() {
           </tr>
         </thead>
         <tbody>
-          {knowledgeItems.map((doc, index) => (
-            <tr key={index} className="border-t hover:bg-gray-50">
+          {knowledgeItems.map((doc) => (
+            <tr key={doc.id} className="border-t">
               <td className="px-4 py-3 whitespace-nowrap truncate max-w-[300px] text-[#85878B]">
                 {doc.name}
               </td>
@@ -94,7 +97,6 @@ export default function KnowledgeTable() {
                   {doc.field}
                 </span>
               </td>
-              {/* TODO: {doc.clickRate ?? 0} */}
               <td className="text-center px-4 py-3 text-[#85878B]">24</td>
               <td className="px-4 py-3 text-[#85878B]">
                 {new Date(doc.uploadedAt).toLocaleString("id-ID", {
@@ -106,12 +108,18 @@ export default function KnowledgeTable() {
                 })}
               </td>
               <td className="px-4 py-3 flex flex-row gap-[5px] justify-between">
-                <button className="w-full h-[24px] radius-[4px] border border-[#EAECEB] text-gray-600 flex justify-center items-center cursor-pointer">
+                <button
+                  onClick={() => {
+                    setEditData(doc);
+                    setEditModalOpen(true);
+                  }}
+                  className="w-full h-[24px] border border-[#EAECEB] text-gray-600 flex justify-center items-center cursor-pointer"
+                >
                   <FaEdit />
                 </button>
                 <button
                   onClick={() => handleDelete(doc.id, doc.path, doc.type)}
-                  className="w-full h-[24px] radius-[4px] border border-[#EAECEB] text-gray-600 flex justify-center items-center cursor-pointer"
+                  className="w-full h-[24px] border border-[#EAECEB] text-gray-600 flex justify-center items-center cursor-pointer"
                 >
                   <FaTrash />
                 </button>
@@ -120,6 +128,26 @@ export default function KnowledgeTable() {
           ))}
         </tbody>
       </table>
+
+      {editModalOpen && editData && (
+        <Modal
+          isOpen={editModalOpen}
+          closeModal={() => {
+            setEditModalOpen(false);
+            setEditData(null);
+          }}
+          file={null}
+          isEditMode
+          initialData={{
+            id: editData.id,
+            name: editData.name,
+            field: editData.field,
+            tags: editData.tags || "",
+            type: editData.type,
+            path: editData.path,
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -6,20 +6,23 @@ const Modal = ({
   isOpen,
   closeModal,
   file,
+  isEditMode = false,
+  initialData,
 }: {
   isOpen: boolean;
   closeModal: () => void;
   file: File | null;
+  isEditMode?: boolean;
+  initialData?: {
+    id: number;
+    name: string;
+    field: string;
+    tags?: string;
+    type: "pdf" | "mp3";
+    path: string;
+  };
 }) => {
   const categories = ["Training", "Hasnur Talks", "Hasnur Weekly Insight"];
-
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [documentName, setDocumentName] = useState("");
-  const [field, setField] = useState("");
-  const [uploadedFile, setUploadedFile] = useState<File | null>(file);
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const fieldOptions = [
     "Corsec/Corplan",
     "Operation",
@@ -33,9 +36,21 @@ const Modal = ({
     "Marketing & Sales",
   ];
 
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [documentName, setDocumentName] = useState("");
+  const [field, setField] = useState("");
+  const [uploadedFile, setUploadedFile] = useState<File | null>(file);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
+    if (initialData) {
+      setDocumentName(initialData.name);
+      setField(initialData.field);
+      setSelectedCategory(initialData.tags || "");
+    }
     setUploadedFile(file);
-  }, [file]);
+  }, [file, initialData]);
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
@@ -56,7 +71,6 @@ const Modal = ({
 
       if (isPDF || isMP3) {
         setUploadedFile(selected);
-        console.log("Modal - selected file:", selected.name);
       } else {
         alert("Only PDF or MP3 files are allowed.");
       }
@@ -68,27 +82,38 @@ const Modal = ({
   };
 
   const handleUpload = async () => {
-    if (!uploadedFile || !documentName || !field || !selectedCategory) {
-      alert("Please fill all fields before uploading.");
+    if (!documentName || !field || !selectedCategory) {
+      alert("Please fill all required fields.");
       return;
     }
 
     const formData = new FormData();
-    formData.append("file", uploadedFile);
     formData.append("name", documentName);
     formData.append("field", field);
     formData.append("tags", selectedCategory);
 
+    if (uploadedFile) {
+      formData.append("file", uploadedFile);
+    }
+
+    let method = "POST";
+
+    if (isEditMode && initialData) {
+      formData.append("id", initialData.id.toString());
+      formData.append("type", initialData.type);
+      formData.append("oldPath", initialData.path);
+      method = "PUT";
+    }
+
     try {
       const res = await fetch("/api/knowledge", {
-        method: "POST",
+        method,
         body: formData,
       });
 
       if (res.ok) {
-        alert("Upload successful!");
+        alert(isEditMode ? "Update successful!" : "Upload successful!");
         closeModal();
-        // Optional: reset form
         setDocumentName("");
         setField("");
         setSelectedCategory("");
@@ -98,8 +123,8 @@ const Modal = ({
         alert(`Upload failed: ${err.error || "unknown error"}`);
       }
     } catch (error) {
-      alert("An unexpected error occurred.");
-      console.error(error);
+      console.error("Upload error:", error);
+      alert("Unexpected error occurred.");
     }
   };
 
@@ -117,10 +142,12 @@ const Modal = ({
         <div className="px-[35px] pt-[35px] w-full">
           <div className="flex flex-col items-start mb-[30px]">
             <h1 className="text-[20px] font-bold text-black">
-              Add new knowledge
+              {isEditMode ? "Edit knowledge" : "Add new knowledge"}
             </h1>
             <p className="text-[14px] text-[#7F7F7F] font-semibold">
-              Drag and drop files to add a new knowledge.
+              {isEditMode
+                ? "You can update metadata or upload a new file."
+                : "Drag and drop files to add a new knowledge."}
             </p>
           </div>
 
@@ -132,7 +159,10 @@ const Modal = ({
             style={{ display: "none" }}
           />
 
-          <div className="bg-[#FCFBFC] border border-dashed border-[#CFCFCF] rounded-[4px] w-full h-[160px] mb-[30px] flex flex-col justify-center items-center px-4">
+          <div
+            className="bg-[#FCFBFC] border border-dashed border-[#CFCFCF] rounded-[4px] w-full h-[160px] mb-[30px] flex flex-col justify-center items-center px-4"
+            onClick={handleBrowseClick}
+          >
             <Image
               src="/upload_icon.png"
               alt="upload"
@@ -143,16 +173,13 @@ const Modal = ({
             <div className="w-[240px] text-center flex flex-col items-center justify-center px-4">
               <p className="text-[15px] text-[#7A7A7A] font-medium">
                 Drop your knowledge here, or{" "}
-                <span
-                  className="text-[14px] text-[#3A40D4] font-medium cursor-pointer"
-                  onClick={handleBrowseClick}
-                >
+                <span className="text-[#3A40D4] font-medium cursor-pointer">
                   click to browse
                 </span>
               </p>
               {uploadedFile && (
                 <p className="mt-2 text-sm text-green-600 font-medium">
-                  Uploaded file: {uploadedFile.name}
+                  File selected: {uploadedFile.name}
                 </p>
               )}
             </div>
@@ -223,7 +250,7 @@ const Modal = ({
             onClick={handleUpload}
             className="w-[115px] h-[41px] bg-[#3D5AFE] text-white px-6 py-2 rounded-[8px] text-[16px] font-semibold hover:bg-[#2c47e3] transition-all"
           >
-            Upload
+            {isEditMode ? "Update" : "Upload"}
           </button>
         </div>
       </div>
