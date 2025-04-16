@@ -1,6 +1,6 @@
 import SMECard from "../components/cards/SMECard";
-import Breadcrumb from "../components/layout/breadcrumb";
-import BreadcrumbItem from "../components/layout/breadcrumbitem";
+import Breadcrumb from "../components/layout/Breadcrumb";
+import BreadcrumbItem from "../components/layout/BreadcrumbItem";
 import SearchBar from "../components/ui/SearchBar";
 
 export default function SMEPage() {

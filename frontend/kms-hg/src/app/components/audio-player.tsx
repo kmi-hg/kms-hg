@@ -4,8 +4,8 @@ import React, { useState, useRef, useEffect } from "react";
 import { ForwardIcon, PlayIcon, RewindIcon, PauseIcon } from "lucide-react";
 import Image from "next/image";
 import { Button } from "./ui/button";
-import Breadcrumb from "./layout/breadcrumb";
-import BreadcrumbItem from "./layout/breadcrumbitem";
+import Breadcrumb from "./layout/Breadcrumb";
+import BreadcrumbItem from "./layout/BreadcrumbItem";
 
 interface Track {
   title: string;
