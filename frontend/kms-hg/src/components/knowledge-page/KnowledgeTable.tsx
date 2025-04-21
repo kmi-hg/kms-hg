@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { KnowledgeItem } from "@/types";
-import Modal from "@/app/components/ui/Modal";
+import Modal from "@/components/knowledge-page/KnowledgeModal";
 
 export default function KnowledgeTable() {
   const [knowledgeItems, setKnowledgeItems] = useState<KnowledgeItem[]>([]);
@@ -18,8 +18,7 @@ export default function KnowledgeTable() {
 
         const sortedData = data.sort(
           (a, b) =>
-            new Date(b.uploadedAt).getTime() -
-            new Date(a.uploadedAt).getTime()
+            new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
         );
 
         setKnowledgeItems(sortedData);

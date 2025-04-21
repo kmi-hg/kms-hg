@@ -1,7 +1,7 @@
-import SMECard from "../components/cards/SMECard";
-import Breadcrumb from "../components/layout/Breadcrumb";
-import BreadcrumbItem from "../components/layout/BreadcrumbItem";
-import SearchBar from "../components/ui/SearchBar";
+import SMECard from "../../components/sme-page/SMECard";
+import Breadcrumb from "../../components/sme-page/Breadcrumb";
+import BreadcrumbItem from "../../components/sme-page/BreadcrumbItem";
+import SearchBar from "../../components/sme-page/SearchBar";
 
 export default function SMEPage() {
   // const dummyData = Array(20).fill({

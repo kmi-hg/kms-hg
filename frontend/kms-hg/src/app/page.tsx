@@ -10,15 +10,26 @@ import {
 } from "@/app";
 import { useUpload } from "@/hooks/useUpload";
 import { useFilter } from "@/hooks/useFilter";
-import KnowledgeList from "./components/KnowledgeList";
-import FilterBar from "./components/ui/FIlterBar";
+import KnowledgeList from "../components/knowledge-page/KnowledgeList";
 import Image from "next/image";
-import KnowledgeTable from "./components/KnowledgeTable";
+import KnowledgeTable from "../components/knowledge-page/KnowledgeTable";
+import SearchFilterBar from "../components/knowledge-page/SearchFilterBar";
 
 export default function Home() {
   const userRole = "KMI";
-  const FieldsOptions = ["DSA", "JS", "Python", "Java", "C++"];
-  const TypeOptions = ["DSA", "JS", "Python", "Java", "C++"];
+  const FieldsOptions = [
+    "Corsec/Corplan",
+    "Operation",
+    "HCGS",
+    "Procurement",
+    "Others",
+    "Fleet Mgt",
+    "FAT",
+    "GRCD",
+    "Legal & permit",
+    "Marketing & Sales",
+  ];
+  const TypeOptions = ["PDF", "MP3"];
 
   const [activeTab, setActiveTab] = useState<"overview" | "add">("overview");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -94,7 +105,7 @@ export default function Home() {
         )}
 
         {/* FilterBar - tampil di semua tab */}
-        <FilterBar
+        <SearchFilterBar
           selectedFields={selectedFields}
           setSelectedFields={setSelectedFields}
           isOpenFields={isOpenFields}

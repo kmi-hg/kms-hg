@@ -23,7 +23,7 @@ export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
         .replace(/\s+/g, "-") // spaces to dashes
         .replace(/[^a-z0-9\-]/g, ""); // remove other chars
 
-      router.push(`/audio-page/${slug}`);
+      router.push(`/knowledge/${slug}`);
     } else if (item.path) {
       window.open(item.path, "_blank");
     }

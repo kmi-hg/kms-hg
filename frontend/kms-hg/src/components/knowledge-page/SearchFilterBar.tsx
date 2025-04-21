@@ -1,7 +1,7 @@
 import { FaCaretDown } from "react-icons/fa";
 import Image from "next/image";
 
-interface FilterBarProps {
+interface SearchFilterBarProps {
   selectedFields: string;
   setSelectedFields: (value: string) => void;
   isOpenFields: boolean;
@@ -14,10 +14,10 @@ interface FilterBarProps {
   TypeOptions: string[];
   viewMode: "grid" | "list";
   setViewMode: (value: "grid" | "list") => void;
-  isOverview: boolean; // ✅ tambahkan ini
+  isOverview: boolean; 
 }
 
-export default function FilterBar({
+export default function SearchFilterBar({
   selectedFields,
   setSelectedFields,
   isOpenFields,
@@ -30,8 +30,8 @@ export default function FilterBar({
   TypeOptions,
   viewMode,
   setViewMode,
-  isOverview, // ✅ tambahkan ini
-}: FilterBarProps) {
+  isOverview, 
+}: SearchFilterBarProps) {
   return (
     <div className="w-full h-[70px] border border-[#c2c2c2] rounded-[12px] px-[23.5px] py-[14px] flex gap-[13px] justify-center items-center mb-[20px]">
       {/* Search */}

@@ -12,6 +12,7 @@ export default function KnowledgeList() {
     fetch("/api/knowledge")
       .then((res) => res.json())
       .then((data) => {
+        console.log("Fetched data:", data);
         setData(data);
         setLoading(false);
       });
