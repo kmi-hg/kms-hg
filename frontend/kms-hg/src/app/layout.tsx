@@ -1,5 +1,3 @@
-import { ClerkProvider } from "@clerk/nextjs";
-
 import type { Metadata } from "next";
 import "./globals.css";
 import { Figtree } from "next/font/google";
@@ -12,7 +10,7 @@ export const metadata: Metadata = {
 const figtree = Figtree({
   subsets: ["latin"],
   variable: "--font-figtree",
-  weight: ["400", "500", "600", "700"], // optional: customize weights
+  weight: ["400", "500", "600", "700"],
 });
 
 export default function RootLayout({
@@ -21,10 +19,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
       <html lang="en">
         <body>{children}</body>
       </html>
-    </ClerkProvider>
   );
 }

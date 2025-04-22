@@ -10,10 +10,20 @@ export default function KnowledgeList() {
 
   useEffect(() => {
     fetch("/api/knowledge")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((data) => {
         console.log("Fetched data:", data);
-        setData(data);
+        setData(data || []);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+        setData([]); 
         setLoading(false);
       });
   }, []);

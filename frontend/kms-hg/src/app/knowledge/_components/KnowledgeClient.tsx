@@ -15,7 +15,6 @@ import Image from "next/image";
 import KnowledgeTable from "../../../components/knowledge-page/KnowledgeTable";
 import SearchFilterBar from "../../../components/knowledge-page/SearchFilterBar";
 
-// ✅ Define props for this component
 type KnowledgeClientProps = {
   role: string;
 };

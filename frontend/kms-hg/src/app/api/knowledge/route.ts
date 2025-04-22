@@ -31,8 +31,14 @@ const allowedFields: FieldEnum[] = [
 ];
 
 export async function GET() {
-  const knowledge = await db.select().from(knowledgeTable);
-  return NextResponse.json(knowledge);
+  try {
+    const knowledge = await db.select().from(knowledgeTable);
+    return NextResponse.json(knowledge);
+  } catch (error) {
+    console.error("Database error:", error);
+    return NextResponse.json({ error: "Database failed." }, { status: 500 });
+  }
+  
 }
 
 export async function POST(req: Request) {
