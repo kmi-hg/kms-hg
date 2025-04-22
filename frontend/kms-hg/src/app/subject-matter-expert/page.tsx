@@ -2,9 +2,13 @@
 import SMEClient from "./_components/SMEClient";
 import Breadcrumb from "../../components/sme-page/Breadcrumb";
 import BreadcrumbItem from "../../components/sme-page/BreadcrumbItem";
-import SearchBar from "../../components/sme-page/SearchBar";
 
-export default function SMEPage() {
+interface SMEPageProps {
+  searchParams: { role?: string };
+}
+
+export default function SMEPage({ searchParams }: SMEPageProps) {
+  const role = searchParams.role ?? "";
   return (
     <div className="pt-[60px] px-4">
       <h1 className="text-black font-medium text-[24px] mb-2">
@@ -17,9 +21,7 @@ export default function SMEPage() {
         </BreadcrumbItem>
       </Breadcrumb>
       <br />
-      <SearchBar />
-      <br />
-      <SMEClient />
+      <SMEClient role={role} />;
     </div>
   );
 }

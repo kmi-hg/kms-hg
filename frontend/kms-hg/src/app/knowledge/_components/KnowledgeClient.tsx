@@ -84,11 +84,12 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
         </h2>
         <div className="flex items-center gap-[30px]">
           <FeatureCard
-            href="/subject-matter-expert"
+            href={`/subject-matter-expert?role=${role}`}
             iconSrc="/SME_Icon.png"
             title="Subject Matter Expert"
             description="Ask the Expert"
           />
+
           <FeatureCard
             href="#"
             iconSrc="/HasnurChat_Icon.png"
@@ -133,7 +134,9 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
             </div>
           ) : (
             <div className="flex items-center justify-center w-full h-[200px]">
-              <p className="text-gray-400 text-sm font-figtree">No file added</p>
+              <p className="text-gray-400 text-sm font-figtree">
+                No file added
+              </p>
             </div>
           )
         ) : (
