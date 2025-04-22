@@ -6,6 +6,7 @@ import SMEDetailModal from "../../../components/sme-page/SMEDetailModal";
 import TabNavigation from "../../../components/sme-page/TabNavigation";
 import SearchFilterBar from "@/components/sme-page/SearchFilterBar";
 import { useFilter } from "@/hooks/useFilter";
+import Image from "next/image";
 
 interface SME {
   id: number;
@@ -26,9 +27,10 @@ export default function SMEClient({ role }: SMEClientProps) {
   const [selectedSME, setSelectedSME] = useState<SME | null>(null);
   const [activeTab, setActiveTab] = useState<"overview" | "add">("overview");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [selectedExpertise, setSelectedExpertise] = useState<string>("");
 
   const AreaOfExpertiseOptions = [
-    "Logisic",
+    "Logistic",
     "Argo Forestry",
     "Energy",
     "Technology & Services",
@@ -37,7 +39,7 @@ export default function SMEClient({ role }: SMEClientProps) {
     "Investment",
   ];
   const SBUOptions = [
-    "Logisic",
+    "Logistic",
     "Argo Forestry",
     "Energy",
     "Technology & Services",
@@ -56,6 +58,17 @@ export default function SMEClient({ role }: SMEClientProps) {
     setIsOpenFields: setIsOpenAreaOfExpertise,
     setIsOpenType: setIsOpenSBU,
   } = useFilter();
+
+  const [profilePicture, setProfilePicture] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setProfilePicture(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
 
   useEffect(() => {
     setSelectedAreaOfExpertise("Area of Expertise");
@@ -118,8 +131,123 @@ export default function SMEClient({ role }: SMEClientProps) {
           ))}
         </div>
       ) : (
-        <div className="h-[200px] flex items-center justify-center text-gray-400">
-          SME upload form or placeholder here.
+        // UPLOAD FORM
+        <div className="flex gap-[50px]">
+          {/* Left Column: Profile Picture */}
+          <div className="h-[210px] w-[210px] flex justify-center items-start">
+            <div
+              className="w-[210px] h-[210px] rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-4xl cursor-pointer relative overflow-hidden"
+              onClick={() => document.getElementById("profile-upload")?.click()}
+            >
+              {previewUrl ? (
+                <Image
+                  src={previewUrl}
+                  alt="Preview"
+                  layout="fill"
+                  objectFit="cover"
+                  className="rounded-full"
+                />
+              ) : (
+                "+"
+              )}
+              <input
+                id="profile-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleProfilePicChange}
+              />
+            </div>
+          </div>
+
+          {/* Right Column: Form */}
+          <div className="w-full flex flex-col gap-6">
+            {/* ROW 1: Name, Email, SBU */}
+            <div className="grid md:grid-cols-3 gap-[20px]">
+              <div>
+                <label className="text-[18px] font-medium text-black">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  className="w-full text-black border border-gray-300 rounded-md px-3 py-2 mt-[12px]"
+                  placeholder="Enter name"
+                />
+              </div>
+              <div>
+                <label className="text-[18px] font-medium text-black">
+                  Email
+                </label>
+                <input
+                  type="text"
+                  className="w-full text-black border border-gray-300 rounded-md px-3 py-2 mt-[12px]"
+                  placeholder="Enter email"
+                />
+              </div>
+              <div>
+                <label className="text-[18px] font-medium text-black">
+                  SBU
+                </label>
+                <input
+                  type="text"
+                  className="w-full text-black border border-gray-300 rounded-md px-3 py-2 mt-[12px]"
+                  placeholder="Enter SBU"
+                />
+              </div>
+            </div>
+
+            {/* ROW 2: Bio and Area of Expertise + Add Button */}
+            <div className="grid md:grid-cols-3 gap-[20px]">
+              <div className="md:col-span-2">
+                <label className="text-[18px] font-medium text-black">
+                  Bio
+                </label>
+                <textarea
+                  className="w-full text-black border border-gray-300 rounded-md mt-[12px] px-3 py-2 h-[150px]"
+                  placeholder="Enter bio"
+                />
+              </div>
+
+              <div className="flex flex-col justify-between">
+                {/* Area of Expertise */}
+                <div>
+                  <label className="text-[18px] font-medium text-black mb-1 block">
+                    Area of Expertise
+                  </label>
+                  <div className="flex flex-wrap gap-2 mt-[12px]">
+                    {AreaOfExpertiseOptions.map((area) => {
+                      const isActive = selectedExpertise === area;
+
+                      return (
+                        <button
+                          key={area}
+                          type="button"
+                          onClick={() => setSelectedExpertise(area)}
+                          className={`rounded-[4px] px-[6px] py-[3px] text-[14px] font-semibold border ${
+                            isActive
+                              ? "bg-[#3A40D4] text-white border-[#3A40D4]"
+                              : "text-[#7F7F7F] border-[#c3c3c3] hover:bg-gray-100"
+                          }`}
+                        >
+                          + {area}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Add Button */}
+                <div className="flex justify-end mt-4">
+                  <button
+                    type="submit"
+                    className="bg-[#3A40D4] text-white px-6 py-2 rounded-[8px] text-[16px] transition w-[115px] h-[41px]"
+                  >
+                    Add
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

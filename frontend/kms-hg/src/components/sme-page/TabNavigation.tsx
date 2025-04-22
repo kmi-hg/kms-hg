@@ -28,7 +28,7 @@ export default function TabNavigation({
             : "text-[#8A8A8A]"
         }`}
       >
-        <span className="text-[18px] font-bold">+</span> Add Document
+        <span className="text-[18px] font-bold">+</span> Add Expert
       </button>
     </div>
   );
