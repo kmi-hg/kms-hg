@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { knowledgeTable } from "@/db/schema/knowledge";
-import { db } from "./db";
+import { db } from "../db";
 import { createClient } from "@supabase/supabase-js";
 import { v4 as uuidv4 } from "uuid";
 
