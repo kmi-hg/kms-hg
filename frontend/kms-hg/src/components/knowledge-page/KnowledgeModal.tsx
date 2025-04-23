@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const Modal = ({
   isOpen,
@@ -96,6 +97,8 @@ const Modal = ({
     setSelectedCategory(category);
   };
 
+  const router = useRouter();
+
   const handleUpload = async () => {
     if (!documentName || !field || !selectedCategory) {
       alert("Please fill all required fields.");
@@ -138,6 +141,8 @@ const Modal = ({
         setSelectedCategory("");
         setUploadedFile(null);
         setThumbnailFile(null);
+
+        router.refresh();
       } else {
         const err = await res.json();
         alert(`Upload failed: ${err.error || "unknown error"}`);

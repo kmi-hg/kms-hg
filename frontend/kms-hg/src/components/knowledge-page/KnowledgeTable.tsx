@@ -66,33 +66,47 @@ export default function KnowledgeTable() {
   }
 
   return (
-    <div className="overflow-x-auto border rounded-lg">
-      <table className="min-w-full text-left text-[16px] text-gray-600">
-        <thead className="bg-[#FAFAFA] text-[#222] font-semibold">
+    <div className="overflow-x-auto rounded-lg">
+      <table className="min-w-full table-fixed text-[16px] text-gray-600">
+        <thead className="bg-white text-[#222] font-semibold">
           <tr>
-            <th className="px-4 py-3 font-semibold">Document Name</th>
-            <th className="px-4 py-3 font-semibold">Document Type</th>
-            <th className="px-4 py-3 font-semibold">Categories</th>
-            <th className="px-4 py-3 font-semibold">Fields</th>
-            <th className="px-4 py-3 font-semibold">Click Rate</th>
-            <th className="px-4 py-3 font-semibold">Document Date</th>
-            <th className="px-4 py-3 font-semibold">Operation Selected</th>
+            <th className="px-4 py-3 font-semibold text-left">Document Name</th>
+            <th className="px-4 py-3 font-semibold text-center">
+              Document Type
+            </th>
+            <th className="px-4 py-3 font-semibold text-center">Categories</th>
+            <th className="px-4 py-3 font-semibold text-center">Fields</th>
+            <th className="px-4 py-3 font-semibold text-center">Click Rate</th>
+            <th className="px-4 py-3 font-semibold text-center">
+              Document Date
+            </th>
+            <th className="px-4 py-3 font-semibold text-center">
+              Operation Selected
+            </th>
           </tr>
         </thead>
+
         <tbody>
-          {knowledgeItems.map((doc) => (
-            <tr key={doc.id} className="border-t">
-              <td className="px-4 py-3 whitespace-nowrap truncate max-w-[300px] text-[#85878B]">
+          {knowledgeItems.map((doc, index) => (
+            <tr
+              key={doc.id}
+              className={index % 2 === 0 ? "bg-[#FCFBFC]" : "bg-white"}
+            >
+              <td className="relative px-4 py-3 whitespace-nowrap truncate max-w-[300px] text-[#85878B] group cursor-pointer">
                 {doc.name}
+                <div className="absolute z-50 hidden group-hover:block bg-white text-[#222] text-sm px-3 py-2 rounded-md shadow-lg border border-gray-200 w-max max-w-[300px] left-1/2 -translate-x-1/2 top-full mt-1">
+                  {doc.name}
+                </div>
               </td>
-              <td className="px-4 py-3 flex justify-center">
+
+              <td className="px-4 py-3 text-center">
                 <span className="bg-gray-100 text-[#85878B] px-2 py-1 rounded text-[14px]">
                   {doc.type.toUpperCase()}
                 </span>
               </td>
               <td className="px-4 py-3 text-[#85878B]">{doc.tags}</td>
               <td className="px-4 py-3">
-                <span className="bg-gray-100 text-[#85878B] px-2 py-1 rounded text-[14px]">
+                <span className="bg-gray-100 text-[#85878B] px-2 py-1 rounded text-[14px] text-center">
                   {doc.field}
                 </span>
               </td>
@@ -112,15 +126,23 @@ export default function KnowledgeTable() {
                     setEditData(doc);
                     setEditModalOpen(true);
                   }}
-                  className="w-full h-[24px] border border-[#EAECEB] text-gray-600 flex justify-center items-center cursor-pointer"
+                  className="w-full h-[24px] border border-[#EAECEB] rounded-[4px] text-gray-600 text-center items-center cursor-pointer flex justify-center"
                 >
-                  <FaEdit />
+                  <img
+                    src="/edit_icon.png"
+                    alt="Edit"
+                    className="h-[15px] w-[15px]"
+                  />
                 </button>
                 <button
                   onClick={() => handleDelete(doc.id, doc.path, doc.type)}
-                  className="w-full h-[24px] border border-[#EAECEB] text-gray-600 flex justify-center items-center cursor-pointer"
+                  className="w-full h-[24px] border border-[#EAECEB] rounded-[4px] text-gray-600 text-center items-center cursor-pointer flex justify-center"
                 >
-                  <FaTrash />
+                  <img
+                    src="/delete_icon.png"
+                    alt="Delete"
+                    className="h-[15px] w-[13px]"
+                  />
                 </button>
               </td>
             </tr>
