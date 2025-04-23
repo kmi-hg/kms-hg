@@ -59,6 +59,11 @@ export default function SMEClient({ role }: SMEClientProps) {
     setIsOpenType: setIsOpenSBU,
   } = useFilter();
 
+  useEffect(() => {
+    setSelectedAreaOfExpertise("Area of Expertise");
+    setSelectedSBU("SBU");
+  }, []);
+
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
@@ -69,11 +74,6 @@ export default function SMEClient({ role }: SMEClientProps) {
       setPreviewUrl(URL.createObjectURL(file));
     }
   };
-
-  useEffect(() => {
-    setSelectedAreaOfExpertise("Area of Expertise");
-    setSelectedSBU("SBU");
-  }, []);
 
   useEffect(() => {
     const fetchSMEs = async () => {
@@ -88,6 +88,65 @@ export default function SMEClient({ role }: SMEClientProps) {
 
     fetchSMEs();
   }, []);
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [sbu, setSbu] = useState("");
+  const [bio, setBio] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (
+      !profilePicture ||
+      !name ||
+      !email ||
+      !sbu ||
+      !bio ||
+      !selectedExpertise
+    ) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("profile_picture", profilePicture);
+    formData.append("name", name);
+    formData.append("email", email);
+    formData.append("sbu", sbu);
+    formData.append("bio", bio);
+    formData.append("area_of_expertise", selectedExpertise);
+
+    try {
+      const res = await fetch("/api/expert", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (res.ok) {
+        alert("SME uploaded successfully!");
+        // Optional: clear form
+        setName("");
+        setEmail("");
+        setSbu("");
+        setBio("");
+        setSelectedExpertise("");
+        setProfilePicture(null);
+        setPreviewUrl(null);
+        setActiveTab("overview");
+        // Refresh list
+        const updated = await fetch("/api/expert");
+        const data = await updated.json();
+        setSmeList(data);
+      } else {
+        const error = await res.json();
+        alert(error.error || "Upload failed");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong!");
+    }
+  };
 
   return (
     <>
@@ -172,6 +231,8 @@ export default function SMEClient({ role }: SMEClientProps) {
                   type="text"
                   className="w-full text-black border border-gray-300 rounded-md px-3 py-2 mt-[12px]"
                   placeholder="Enter name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                 />
               </div>
               <div>
@@ -182,17 +243,26 @@ export default function SMEClient({ role }: SMEClientProps) {
                   type="text"
                   className="w-full text-black border border-gray-300 rounded-md px-3 py-2 mt-[12px]"
                   placeholder="Enter email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               <div>
                 <label className="text-[18px] font-medium text-black">
                   SBU
                 </label>
-                <input
-                  type="text"
+                <select
+                  value={sbu}
+                  onChange={(e) => setSbu(e.target.value)}
                   className="w-full text-black border border-gray-300 rounded-md px-3 py-2 mt-[12px]"
-                  placeholder="Enter SBU"
-                />
+                >
+                  <option value="">Select SBU</option>
+                  {SBUOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
@@ -205,6 +275,8 @@ export default function SMEClient({ role }: SMEClientProps) {
                 <textarea
                   className="w-full text-black border border-gray-300 rounded-md mt-[12px] px-3 py-2 h-[150px]"
                   placeholder="Enter bio"
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
                 />
               </div>
 
@@ -241,6 +313,7 @@ export default function SMEClient({ role }: SMEClientProps) {
                   <button
                     type="submit"
                     className="bg-[#3A40D4] text-white px-6 py-2 rounded-[8px] text-[16px] transition w-[115px] h-[41px]"
+                    onClick={handleSubmit}
                   >
                     Add
                   </button>

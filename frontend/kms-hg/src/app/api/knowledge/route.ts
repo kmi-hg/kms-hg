@@ -49,7 +49,7 @@ export async function POST(req: Request) {
   const field = formData.get("field")?.toString().trim();
   const tags = formData.get("tags")?.toString().trim();
 
-  if (!file || !name || !field || !tags) {
+  if ( !name || !field || !tags) {
     return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
   }
 
@@ -64,7 +64,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Only PDF or MP3 allowed." }, { status: 400 });
   }
 
-  const bucket = isPDF ? "knowledge-pdf" : "knowledge-audio";
+  const bucket = isPDF ? "knowledge-pdf" : "knowledge-mp3";
   const ext = isPDF ? "pdf" : "mp3";
   const fileName = `${uuidv4()}.${ext}`;
   const supabase = createClient(
