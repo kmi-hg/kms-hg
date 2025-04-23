@@ -27,6 +27,20 @@ const AudioPlayer: React.FC = () => {
     }
   }, []);
 
+  interface Track {
+    title: string;
+    artist: string;
+    src: string;
+    thumbnail?: string;
+  }
+
+  interface Track {
+    title: string;
+    artist: string;
+    src: string;
+    thumbnail?: string;
+  }
+
   useEffect(() => {
     if (audioRef.current && track) {
       audioRef.current.src = track.src;
@@ -77,12 +91,13 @@ const AudioPlayer: React.FC = () => {
     <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-xl">
         <Image
-          src="/music-cover-placeholder.png"
+          src={track?.thumbnail || "/music-cover-placeholder.png"}
           alt="Cover"
           width={800}
           height={800}
-          className="w-full rounded-xl object-cover"
+          className="w-full h-[320px] rounded-xl object-cover"
         />
+
         <h2 className="text-2xl font-semibold text-center mt-6">
           {track?.title || "No track selected"}
         </h2>

@@ -45,11 +45,12 @@ export async function POST(req: Request) {
   const formData = await req.formData();
 
   const file = formData.get("file") as File;
+  const thumbnail = formData.get("thumbnail") as File | null;
   const name = formData.get("name")?.toString().trim();
   const field = formData.get("field")?.toString().trim();
   const tags = formData.get("tags")?.toString().trim();
 
-  if ( !name || !field || !tags) {
+  if (!name || !field || !tags) {
     return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
   }
 
@@ -64,35 +65,56 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Only PDF or MP3 allowed." }, { status: 400 });
   }
 
-  const bucket = isPDF ? "knowledge-pdf" : "knowledge-mp3";
-  const ext = isPDF ? "pdf" : "mp3";
-  const fileName = `${uuidv4()}.${ext}`;
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
+  // Upload main file
+  const bucket = isPDF ? "knowledge-pdf" : "knowledge-mp3";
+  const ext = isPDF ? "pdf" : "mp3";
+  const fileName = `${uuidv4()}.${ext}`;
+
   const { error: uploadError } = await supabase.storage
     .from(bucket)
-    .upload(fileName, file, {
-      contentType: file.type,
-    });
+    .upload(fileName, file, { contentType: file.type });
 
   if (uploadError) {
     return NextResponse.json({ error: uploadError.message }, { status: 500 });
   }
 
-  const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(fileName);
-  const publicUrl = publicUrlData?.publicUrl;
+  const { data: fileUrlData } = supabase.storage.from(bucket).getPublicUrl(fileName);
+  const fileUrl = fileUrlData?.publicUrl;
   const fileSizeMB = file.size / 1024 / 1024;
 
+  // Upload thumbnail (if MP3 and thumbnail exists)
+  let thumbnailUrl: string | undefined = undefined;
+
+  if (isMP3 && thumbnail) {
+    const thumbName = `${uuidv4()}-${thumbnail.name}`;
+    const { error: thumbError } = await supabase.storage
+      .from("knowledge-thumbnails")
+      .upload(thumbName, thumbnail, { contentType: thumbnail.type });
+
+    if (thumbError) {
+      return NextResponse.json({ error: thumbError.message }, { status: 500 });
+    }
+
+    const { data: thumbUrlData } = supabase.storage
+      .from("knowledge-thumbnails")
+      .getPublicUrl(thumbName);
+    thumbnailUrl = thumbUrlData?.publicUrl;
+  }
+
+  // Insert into DB
   await db.insert(knowledgeTable).values({
     name,
     field: field as FieldEnum,
     tags,
     type: ext,
-    path: publicUrl,
+    path: fileUrl,
     size: parseFloat(fileSizeMB.toFixed(2)),
+    thumbnailPath: thumbnailUrl,
   });
 
   return NextResponse.json({ message: "Upload successful." });

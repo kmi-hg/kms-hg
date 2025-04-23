@@ -31,5 +31,6 @@ export const knowledgeTable = pgTable("knowledge_table", {
   type: typeEnum().notNull(),
   path: text("path").notNull(),
   size: doublePrecision("size").notNull(),
+  thumbnailPath: text("thumbnail_path"), // <-- New column
   uploadedAt: timestamp("uploaded_at").notNull().defaultNow(),
 });

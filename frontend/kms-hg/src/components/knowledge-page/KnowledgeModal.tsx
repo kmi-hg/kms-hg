@@ -40,6 +40,7 @@ const Modal = ({
   const [documentName, setDocumentName] = useState("");
   const [field, setField] = useState("");
   const [uploadedFile, setUploadedFile] = useState<File | null>(file);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -71,9 +72,23 @@ const Modal = ({
 
       if (isPDF || isMP3) {
         setUploadedFile(selected);
+        if (!isMP3) {
+          setThumbnailFile(null);
+        }
       } else {
         alert("Only PDF or MP3 files are allowed.");
       }
+    }
+  };
+
+  const handleThumbnailChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const selected = event.target.files?.[0];
+    if (selected && selected.type.startsWith("image/")) {
+      setThumbnailFile(selected);
+    } else {
+      alert("Only image files are allowed for the thumbnail.");
     }
   };
 
@@ -94,6 +109,10 @@ const Modal = ({
 
     if (uploadedFile) {
       formData.append("file", uploadedFile);
+    }
+
+    if (uploadedFile?.type === "audio/mpeg" && thumbnailFile) {
+      formData.append("thumbnail", thumbnailFile);
     }
 
     let method = "POST";
@@ -118,6 +137,7 @@ const Modal = ({
         setField("");
         setSelectedCategory("");
         setUploadedFile(null);
+        setThumbnailFile(null);
       } else {
         const err = await res.json();
         alert(`Upload failed: ${err.error || "unknown error"}`);
@@ -136,10 +156,10 @@ const Modal = ({
       ></div>
 
       <div
-        className="relative bg-white w-[780px] h-[585px] rounded-[20px] border border-[#E5E5E5] shadow-lg z-50 flex flex-col items-start"
+        className="relative bg-white w-[780px] max-h-[90vh] rounded-[20px] border border-[#E5E5E5] shadow-lg z-50 flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-[35px] pt-[35px] w-full">
+        <div className="overflow-y-auto px-[35px] pt-[35px] pb-[20px] w-full flex-1">
           <div className="flex flex-col items-start mb-[30px]">
             <h1 className="text-[20px] font-bold text-black">
               {isEditMode ? "Edit knowledge" : "Add new knowledge"}
@@ -184,6 +204,25 @@ const Modal = ({
               )}
             </div>
           </div>
+
+          {uploadedFile?.type === "audio/mpeg" && (
+            <div className="mb-[30px]">
+              <label className="text-[16px] font-semibold text-black mb-[10px] block">
+                Upload Thumbnail
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleThumbnailChange}
+                className="block text-sm text-black"
+              />
+              {thumbnailFile && (
+                <p className="mt-2 text-sm text-green-600 font-medium">
+                  Thumbnail selected: {thumbnailFile.name}
+                </p>
+              )}
+            </div>
+          )}
 
           <div className="flex w-full justify-between gap-[20px] mb-[30px]">
             <div className="flex flex-col w-full items-start">
@@ -245,7 +284,7 @@ const Modal = ({
           </div>
         </div>
 
-        <div className="w-full h-full flex items-center justify-end border-t border-[#E5E5E5] pr-[35px]">
+        <div className="w-full flex items-center justify-end border-t border-[#E5E5E5] px-[35px] py-[15px]">
           <button
             onClick={handleUpload}
             className="w-[115px] h-[41px] bg-[#3D5AFE] text-white px-6 py-2 rounded-[8px] text-[16px] font-semibold hover:bg-[#2c47e3] transition-all"

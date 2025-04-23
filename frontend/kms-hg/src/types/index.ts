@@ -7,6 +7,6 @@ export type KnowledgeItem = {
     uploadedAt: string;
     field: string;
     tags?: string;
-    thumbnail?: string;
+    thumbnailPath?: string;
   };
   

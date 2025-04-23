@@ -13,15 +13,15 @@ export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
         title: item.name,
         artist: "Unknown Artist",
         src: item.path,
+        thumbnail: item.thumbnailPath || "cth-knowledge.png",
       };
       localStorage.setItem("selectedTrack", JSON.stringify(track));
 
-      // Generate slug from filename (remove extension and format)
       const slug = item.name
         .toLowerCase()
-        .replace(/\.[^/.]+$/, "") // remove extension
-        .replace(/\s+/g, "-") // spaces to dashes
-        .replace(/[^a-z0-9\-]/g, ""); // remove other chars
+        .replace(/\.[^/.]+$/, "")
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9\-]/g, "");
 
       router.push(`/knowledge/${slug}`);
     } else if (item.path) {
@@ -44,7 +44,6 @@ export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
             {item.name}
           </p>
         </div>
-        {/* <div className="h-[27px] w-[27px] bg-[#f7f7f7] rounded-[7px]"></div> */}
       </div>
 
       {/* File Info */}
@@ -57,14 +56,14 @@ export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
 
       <hr className="w-full border-t border-gray-300" />
 
-      {/* Gambar tengah */}
-      <div className="w-full flex items-center justify-center px-[18px] mt-[25px] mb-[25px]">
-        <div className="relative w-full max-w-[100%] h-[162px]">
+      {/* Image preview (thumbnail or default) */}
+      <div className="w-full px-[18px] mt-[25px] mb-[25px]">
+        <div className="relative w-full h-[160px]">
           <Image
-            src="/cth-knowledge.png"
-            alt="Hasnur Group"
+            src={item.thumbnailPath || "/cth-knowledge.png"}
+            alt={item.name}
             fill
-            className="object-contain"
+            className="object-cover rounded-[6px]"
             sizes="100vw"
           />
         </div>
