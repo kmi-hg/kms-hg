@@ -9,4 +9,15 @@ export type KnowledgeItem = {
     tags?: string;
     thumbnailPath?: string;
   };
+
+  export type SMEItem = {
+    id: number;
+    name: string;
+    email: string;
+    profile_url: string;           // URL to profile image
+    area_of_expertise: string;
+    sbu: string;
+    bio: string;
+    createdAt?: string;           // Optional, for upload timestamp
+  };
   

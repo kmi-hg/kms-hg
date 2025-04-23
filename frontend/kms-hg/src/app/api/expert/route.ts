@@ -94,3 +94,97 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Something went wrong." }, { status: 500 });
   }
 }
+
+export async function DELETE(req: Request) {
+  try {
+    const { id } = await req.json();
+
+    if (!id) {
+      return NextResponse.json({ error: "Missing ID" }, { status: 400 });
+    }
+
+    await db.delete(smeTable).where(eq(smeTable.id, Number(id)));
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("SME delete error:", error);
+    return NextResponse.json({ error: "Failed to delete SME" }, { status: 500 });
+  }
+}
+
+// app/api/expert/route.ts
+// Union types (match exactly what's in your schema)
+type SBU =
+  | "Logistic"
+  | "Argo Forestry"
+  | "Energy"
+  | "Technology & Services"
+  | "Education"
+  | "Consumer"
+  | "Investment";
+
+type AreaOfExpertise =
+  | "Logistic"
+  | "Argo Forestry"
+  | "Energy"
+  | "Technology & Services"
+  | "Education"
+  | "Consumer"
+  | "Investment";
+
+export async function PUT(req: Request) {
+  try {
+    const formData = await req.formData();
+
+    const id = Number(formData.get("id"));
+    const name = formData.get("name")?.toString();
+    const email = formData.get("email")?.toString();
+    const sbuRaw = formData.get("sbu")?.toString();
+    const bio = formData.get("bio")?.toString();
+    const areaRaw = formData.get("area_of_expertise")?.toString();
+
+    if (!id || !name || !email || !sbuRaw || !bio || !areaRaw) {
+      return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
+    }
+
+    // Validate SBU and Area of Expertise
+    const allowedValues: SBU[] = [
+      "Logistic",
+      "Argo Forestry",
+      "Energy",
+      "Technology & Services",
+      "Education",
+      "Consumer",
+      "Investment",
+    ];
+
+    if (!allowedValues.includes(sbuRaw as SBU)) {
+      return NextResponse.json({ error: "Invalid SBU value." }, { status: 400 });
+    }
+
+    if (!allowedValues.includes(areaRaw as AreaOfExpertise)) {
+      return NextResponse.json({ error: "Invalid Area of Expertise." }, { status: 400 });
+    }
+
+    const sbu = sbuRaw as SBU;
+    const area_of_expertise = areaRaw as AreaOfExpertise;
+
+    await db
+      .update(smeTable)
+      .set({
+        name,
+        email,
+        sbu,
+        bio,
+        area_of_expertise,
+      })
+      .where(eq(smeTable.id, id));
+
+    return NextResponse.json({ message: "SME updated successfully." });
+  } catch (error) {
+    console.error("SME update error:", error);
+    return NextResponse.json({ error: "Failed to update SME." }, { status: 500 });
+  }
+}
+
+
