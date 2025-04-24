@@ -1,14 +1,12 @@
 // app/subject-matter-expert/page.tsx
-import SMEClient from "./_components/SMEClient";
 import Breadcrumb from "../../components/sme-page/Breadcrumb";
 import BreadcrumbItem from "../../components/sme-page/BreadcrumbItem";
+import SMEClientWrapper from "./_components/SMEClientWrapper";
+import { Suspense } from "react";
 
-interface SMEPageProps {
-  searchParams: { role?: string };
-}
+export const dynamic = "force-dynamic"; // Optional: if you want dynamic rendering
 
-export default function SMEPage({ searchParams }: SMEPageProps) {
-  const role = searchParams.role ?? "";
+export default function SMEPage() {
   return (
     <div className="pt-[60px] px-4">
       <h1 className="text-black font-medium text-[24px] mb-2">
@@ -21,7 +19,9 @@ export default function SMEPage({ searchParams }: SMEPageProps) {
         </BreadcrumbItem>
       </Breadcrumb>
       <br />
-      <SMEClient role={role} />;
+      <Suspense fallback={<div>Loading SME content...</div>}>
+        <SMEClientWrapper />
+      </Suspense>
     </div>
   );
 }

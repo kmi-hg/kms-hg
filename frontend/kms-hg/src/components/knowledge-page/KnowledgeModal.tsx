@@ -3,8 +3,6 @@ import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-const router = useRouter();
-
 const Modal = ({
   isOpen,
   closeModal,
@@ -38,6 +36,8 @@ const Modal = ({
     "Legal & permit",
     "Marketing & Sales",
   ];
+
+  const router = useRouter();
 
   const [selectedCategory, setSelectedCategory] = useState("");
   const [documentName, setDocumentName] = useState("");

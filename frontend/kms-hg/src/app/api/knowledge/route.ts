@@ -164,7 +164,7 @@ export async function PUT(req: Request) {
     }
 
     const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(newFileName);
-    path = publicUrlData?.publicUrl!;
+    path = publicUrlData?.publicUrl;
     size = parseFloat((file.size / 1024 / 1024).toFixed(2));
   }
 

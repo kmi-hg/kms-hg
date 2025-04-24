@@ -7,6 +7,7 @@ import TabNavigation from "../../../components/sme-page/TabNavigation";
 import SearchFilterBar from "@/components/sme-page/SearchFilterBar";
 import { useFilter } from "@/hooks/useFilter";
 import SMETable from "@/components/sme-page/SMETable";
+import Image from "next/image";
 
 interface SME {
   id: number;
@@ -29,6 +30,14 @@ export default function SMEClient({ role }: SMEClientProps) {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedExpertise, setSelectedExpertise] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
+
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [sbu, setSbu] = useState("");
+  const [bio, setBio] = useState("");
+  const [, setIsEditMode] = useState(false);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const AreaOfExpertiseOptions = [
     "Logistic",
@@ -65,9 +74,6 @@ export default function SMEClient({ role }: SMEClientProps) {
     setSelectedSBU("SBU");
   }, []);
 
-  const [profilePicture, setProfilePicture] = useState<File | null>(null);
-  const [, setPreviewUrl] = useState<string | null>(null);
-
   useEffect(() => {
     const fetchSMEs = async () => {
       try {
@@ -82,13 +88,21 @@ export default function SMEClient({ role }: SMEClientProps) {
     fetchSMEs();
   }, []);
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [sbu, setSbu] = useState("");
-  const [bio, setBio] = useState("");
+  const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const handleSubmit = async () => {
+    // Add your submit logic here
+    console.log({ name, email, sbu, bio, selectedExpertise, previewUrl });
+  };
 
   const filteredSMEs = useMemo(() => {
     return smeList.filter((item) => {
@@ -158,25 +172,143 @@ export default function SMEClient({ role }: SMEClientProps) {
         </div>
       ) : (
         <>
-          {/* UPLOAD FORM */}
-          {/* ... (unchanged form code) ... */}
+          <div className="flex gap-[50px]">
+            {/* Left: Profile Picture Upload */}
+            <div className="h-[210px] w-[210px] flex justify-center items-start">
+              <div
+                className="w-[210px] h-[210px] rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-4xl cursor-pointer relative overflow-hidden"
+                onClick={() => document.getElementById("profile-upload")?.click()}
+              >
+                {previewUrl ? (
+                  <Image
+                    src={previewUrl}
+                    alt="Preview"
+                    layout="fill"
+                    objectFit="cover"
+                    className="rounded-full"
+                  />
+                ) : (
+                  "+"
+                )}
+                <input
+                  id="profile-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleProfilePicChange}
+                />
+              </div>
+            </div>
+
+            {/* Right: Form */}
+            <div className="w-full flex flex-col gap-6">
+              <div className="grid md:grid-cols-3 gap-[20px]">
+                <div>
+                  <label className="text-[18px] font-medium text-black">Name</label>
+                  <input
+                    type="text"
+                    className="w-full text-black border border-gray-300 rounded-md px-3 py-2 mt-[12px]"
+                    placeholder="Enter name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="text-[18px] font-medium text-black">Email</label>
+                  <input
+                    type="email"
+                    className="w-full text-black border border-gray-300 rounded-md px-3 py-2 mt-[12px]"
+                    placeholder="Enter email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="text-[18px] font-medium text-black">SBU</label>
+                  <select
+                    value={sbu}
+                    onChange={(e) => setSbu(e.target.value)}
+                    className="w-full text-black border border-gray-300 rounded-md px-3 py-2 mt-[12px]"
+                  >
+                    <option value="">Select SBU</option>
+                    {SBUOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-[20px]">
+                <div className="md:col-span-2">
+                  <label className="text-[18px] font-medium text-black">Bio</label>
+                  <textarea
+                    className="w-full text-black border border-gray-300 rounded-md mt-[12px] px-3 py-2 h-[150px]"
+                    placeholder="Enter bio"
+                    value={bio}
+                    onChange={(e) => setBio(e.target.value)}
+                  />
+                </div>
+
+                <div className="flex flex-col justify-between">
+                  <div>
+                    <label className="text-[18px] font-medium text-black mb-1 block">
+                      Area of Expertise
+                    </label>
+                    <div className="flex flex-wrap gap-2 mt-[12px]">
+                      {AreaOfExpertiseOptions.map((area) => {
+                        const isActive = selectedExpertise === area;
+                        return (
+                          <button
+                            key={area}
+                            type="button"
+                            onClick={() => setSelectedExpertise(area)}
+                            className={`rounded-[4px] px-[6px] py-[3px] text-[14px] font-semibold border ${
+                              isActive
+                                ? "bg-[#3A40D4] text-white border-[#3A40D4]"
+                                : "text-[#7F7F7F] border-[#c3c3c3] hover:bg-gray-100"
+                            }`}
+                          >
+                            + {area}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end mt-4">
+                    <button
+                      type="submit"
+                      className="bg-[#3A40D4] text-white px-6 py-2 rounded-[8px] text-[16px] transition w-[115px] h-[41px]"
+                      onClick={handleSubmit}
+                    >
+                      Add
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <br />
+
           <SMETable
             data={smeList}
             selectedAreaOfExpertise={selectedAreaOfExpertise}
             selectedSBU={selectedSBU}
             searchQuery={searchQuery}
             onDelete={async (id) => {
-              const confirm = window.confirm(
-                "Are you sure you want to delete this expert?"
-              );
-              if (!confirm) return;
+              const confirmDelete = window.confirm("Are you sure you want to delete this expert?");
+              if (!confirmDelete) return;
+
               try {
                 const res = await fetch(`/api/expert`, {
                   method: "DELETE",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({ id }),
                 });
+
                 if (res.ok) {
                   setSmeList((prev) => prev.filter((s) => s.id !== id));
                 } else {
