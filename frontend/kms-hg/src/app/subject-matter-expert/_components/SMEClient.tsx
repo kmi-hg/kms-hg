@@ -31,6 +31,7 @@ export default function SMEClient({ role }: SMEClientProps) {
   const [selectedExpertise, setSelectedExpertise] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
 
+  const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -99,8 +100,58 @@ export default function SMEClient({ role }: SMEClientProps) {
     }
   };
 
-  const handleSubmit = async () => {
-    // Add your submit logic here
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+ 
+    if (
+      !profilePicture ||
+      !name ||
+      !email ||
+      !sbu ||
+      !bio ||
+      !selectedExpertise
+    ) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("profile_picture", profilePicture);
+    formData.append("name", name);
+    formData.append("email", email);
+    formData.append("sbu", sbu);
+    formData.append("bio", bio);
+    formData.append("area_of_expertise", selectedExpertise);
+
+    try {
+      const res = await fetch("/api/expert", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (res.ok) {
+        alert("SME uploaded successfully!");
+        // Optional: clear form
+        setName("");
+        setEmail("");
+        setSbu("");
+        setBio("");
+        setSelectedExpertise("");
+        setProfilePicture(null);
+        setPreviewUrl(null);
+        setActiveTab("overview");
+        // Refresh list
+        const updated = await fetch("/api/expert");
+        const data = await updated.json();
+        setSmeList(data);
+      } else {
+        const error = await res.json();
+        alert(error.error || "Upload failed");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong!");
+    }
     console.log({ name, email, sbu, bio, selectedExpertise, previewUrl });
   };
 
