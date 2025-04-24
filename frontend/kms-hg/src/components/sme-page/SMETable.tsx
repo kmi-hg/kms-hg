@@ -1,35 +1,66 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { SMEItem } from "@/types";
 import { FaSortUp, FaSortDown } from "react-icons/fa";
 
 type SMETableProps = {
   data: SMEItem[];
+  selectedAreaOfExpertise: string;
+  selectedSBU: string;
+  searchQuery: string;
   onEdit: (sme: SMEItem) => void;
   onDelete: (id: number) => void;
 };
 
-export default function SMETable({ data, onEdit, onDelete }: SMETableProps) {
+export default function SMETable({
+  data,
+  selectedAreaOfExpertise,
+  selectedSBU,
+  searchQuery,
+  onEdit,
+  onDelete,
+}: SMETableProps) {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [sortedData, setSortedData] = useState<SMEItem[]>(data);
+  const [sortColumn, setSortColumn] = useState<"name" | null>(null);
 
   const handleSortName = () => {
     const newDirection = sortDirection === "asc" ? "desc" : "asc";
     setSortDirection(newDirection);
-
-    const sorted = [...data].sort((a, b) => {
-      const nameA = a.name.toLowerCase();
-      const nameB = b.name.toLowerCase();
-      return newDirection === "asc"
-        ? nameA.localeCompare(nameB)
-        : nameB.localeCompare(nameA);
-    });
-
-    setSortedData(sorted);
+    setSortColumn("name");
   };
 
-  const tableData = sortedData.length ? sortedData : data;
+  const filteredData = useMemo(() => {
+    return data.filter((item) => {
+      const matchesExpertise =
+        selectedAreaOfExpertise === "Area of Expertise" ||
+        item.area_of_expertise === selectedAreaOfExpertise;
+
+      const matchesSBU =
+        selectedSBU === "SBU" || item.sbu === selectedSBU;
+
+      const matchesSearch =
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.area_of_expertise.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.sbu.toLowerCase().includes(searchQuery.toLowerCase());
+
+      return matchesExpertise && matchesSBU && matchesSearch;
+    });
+  }, [data, selectedAreaOfExpertise, selectedSBU, searchQuery]);
+
+  const sortedData = useMemo(() => {
+    if (sortColumn === "name") {
+      return [...filteredData].sort((a, b) => {
+        const nameA = a.name.toLowerCase();
+        const nameB = b.name.toLowerCase();
+        return sortDirection === "asc"
+          ? nameA.localeCompare(nameB)
+          : nameB.localeCompare(nameA);
+      });
+    }
+    return filteredData;
+  }, [filteredData, sortColumn, sortDirection]);
 
   return (
     <div className="overflow-x-auto rounded-lg">
@@ -41,21 +72,22 @@ export default function SMETable({ data, onEdit, onDelete }: SMETableProps) {
               onClick={handleSortName}
             >
               Expert Name{" "}
-              {sortDirection === "asc" ? (
-                <FaSortUp className="inline-block ml-1 text-m" />
-              ) : (
-                <FaSortDown className="inline-block ml-1 text-m" />
-              )}
+              {sortColumn === "name" &&
+                (sortDirection === "asc" ? (
+                  <FaSortUp className="inline-block ml-1 text-m" />
+                ) : (
+                  <FaSortDown className="inline-block ml-1 text-m" />
+                ))}
             </th>
             <th className="px-4 py-3 text-left">Email</th>
             <th className="px-4 py-3 text-center">Area of Expertise</th>
             <th className="px-4 py-3 text-center">SBU</th>
             <th className="px-4 py-3 text-center">Upload Date</th>
-            <th className="px-4 py-3 text-center">Operation Selected</th>
+            <th className="px-4 py-3 text-center">Operation</th>
           </tr>
         </thead>
         <tbody>
-          {tableData.map((sme, index) => (
+          {sortedData.map((sme, index) => (
             <tr
               key={sme.id}
               className={index % 2 === 0 ? "bg-[#FCFBFC]" : "bg-white"}
@@ -80,11 +112,7 @@ export default function SMETable({ data, onEdit, onDelete }: SMETableProps) {
                 </span>
               </td>
               <td className="px-4 py-3 text-center text-[#85878B]">
-                {new Date(sme.id).toLocaleString("id-ID", {
-                  day: "2-digit",
-                  month: "2-digit",
-                  year: "numeric",
-                })}
+                {new Date(sme.id).toLocaleDateString("id-ID")}
               </td>
               <td className="px-4 py-3 flex gap-2 justify-center">
                 <button

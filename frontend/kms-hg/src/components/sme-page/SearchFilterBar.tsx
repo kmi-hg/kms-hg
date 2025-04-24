@@ -14,7 +14,9 @@ interface SearchFilterBarProps {
   SBUOptions: string[];
   viewMode: "grid" | "list";
   setViewMode: (value: "grid" | "list") => void;
-  isOverview: boolean; 
+  isOverview: boolean;
+  searchQuery: string;
+  setSearchQuery: (value: string) => void;
 }
 
 export default function SearchFilterBar({
@@ -30,13 +32,21 @@ export default function SearchFilterBar({
   SBUOptions,
   viewMode,
   setViewMode,
-  isOverview, 
+  isOverview,
+  searchQuery,
+  setSearchQuery,
 }: SearchFilterBarProps) {
   return (
     <div className="w-full h-[70px] border border-[#c2c2c2] rounded-[12px] px-[23.5px] py-[14px] flex gap-[13px] justify-center items-center mb-[20px]">
-      {/* Search */}
-      <div className="w-full h-full border border-[#c2c2c2] rounded-[12px] px-[18px] py-[9px]">
-        <p className="text-[#6A6969]">Search</p>
+      {/* Search Input */}
+      <div className="w-full h-full rounded-[12px] px-[18px] py-[9px] flex items-center bg-white border border-[#c2c2c2]">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search SME..."
+          className="w-full text-sm text-[#6A6969] outline-none border-none"
+        />
       </div>
 
       {/* Filters */}
@@ -65,16 +75,16 @@ export default function SearchFilterBar({
           </button>
           {isOpenAreaOfExpertise && (
             <div className="absolute top-[28px] left-0 w-[105px] bg-white border border-[#EBEBEB] rounded-[4px] shadow-sm z-10">
-              {AreaOfExpertiseOptions.map((area_of_expertise) => (
+              {AreaOfExpertiseOptions.map((option) => (
                 <div
-                  key={area_of_expertise}
+                  key={option}
                   onClick={() => {
-                    setSelectedAreaOfExpertise(area_of_expertise);
+                    setSelectedAreaOfExpertise(option);
                     setIsOpenAreaOfExpertise(false);
                   }}
                   className="px-2 py-1 text-[10px] text-[#6C6C6C] hover:bg-gray-100 cursor-pointer"
                 >
-                  {area_of_expertise}
+                  {option}
                 </div>
               ))}
             </div>
@@ -105,23 +115,23 @@ export default function SearchFilterBar({
           </button>
           {isOpenSBU && (
             <div className="absolute top-[28px] left-0 w-[105px] bg-white border border-[#EBEBEB] rounded-[4px] shadow-sm z-10">
-              {SBUOptions.map((sbu) => (
+              {SBUOptions.map((option) => (
                 <div
-                  key={sbu}
+                  key={option}
                   onClick={() => {
-                    setSelectedSBU(sbu);
+                    setSelectedSBU(option);
                     setIsOpenSBU(false);
                   }}
                   className="px-2 py-1 text-[10px] text-[#6C6C6C] hover:bg-gray-100 cursor-pointer"
                 >
-                  {sbu}
+                  {option}
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        {/* View Mode - Only for Overview */}
+        {/* View Mode Icons */}
         {isOverview && (
           <>
             <div
