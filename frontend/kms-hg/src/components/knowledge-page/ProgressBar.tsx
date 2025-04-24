@@ -3,8 +3,12 @@
 import * as React from "react";
 import * as ProgressPrimitive from "@radix-ui/react-progress";
 
-import { cn } from "@/lib/utils";
+import { twMerge } from "tailwind-merge";
+import { ClassValue, clsx } from "clsx";
 
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(...inputs));
+}
 const Progress = React.forwardRef<
   React.ElementRef<typeof ProgressPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root>
