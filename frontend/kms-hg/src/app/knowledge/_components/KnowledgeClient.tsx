@@ -61,7 +61,6 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
   } = useFilter();
 
   const [searchQuery, setSearchQuery] = useState("");
-  
 
   return (
     <div>
@@ -185,8 +184,11 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
                 </p>
               </div>
             </div>
-            <KnowledgeTable searchQuery={searchQuery}     selectedFields={selectedFields}
-        selectedType={selectedType} />
+            <KnowledgeTable
+              searchQuery={searchQuery}
+              selectedFields={selectedFields}
+              selectedType={selectedType}
+            />
           </>
         )}
       </section>

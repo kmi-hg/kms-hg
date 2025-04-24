@@ -104,45 +104,52 @@ const Modal = ({
       alert("Please fill all required fields.");
       return;
     }
-
+  
     const formData = new FormData();
     formData.append("name", documentName);
     formData.append("field", field);
     formData.append("tags", selectedCategory);
-
+  
     if (uploadedFile) {
       formData.append("file", uploadedFile);
     }
-
+  
     if (uploadedFile?.type === "audio/mpeg" && thumbnailFile) {
       formData.append("thumbnail", thumbnailFile);
     }
-
+  
     let method = "POST";
-
+  
     if (isEditMode && initialData) {
       formData.append("id", initialData.id.toString());
       formData.append("type", initialData.type);
       formData.append("oldPath", initialData.path);
       method = "PUT";
     }
-
+  
     try {
       const res = await fetch("/api/knowledge", {
         method,
         body: formData,
       });
-
+  
       if (res.ok) {
         alert(isEditMode ? "Update successful!" : "Upload successful!");
-        closeModal();
+  
+        // Reset form fields
         setDocumentName("");
         setField("");
         setSelectedCategory("");
         setUploadedFile(null);
         setThumbnailFile(null);
-
-        router.refresh();
+  
+        // Close modal first
+        closeModal();
+  
+        // Force revalidation from server (refresh page data)
+        setTimeout(() => {
+          router.refresh();
+        }, 100);
       } else {
         const err = await res.json();
         alert(`Upload failed: ${err.error || "unknown error"}`);
@@ -152,6 +159,7 @@ const Modal = ({
       alert("Unexpected error occurred.");
     }
   };
+  
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
