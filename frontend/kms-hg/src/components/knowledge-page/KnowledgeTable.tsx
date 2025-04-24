@@ -1,8 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
-import { FaEdit, FaTrash } from "react-icons/fa";
 import { KnowledgeItem } from "@/types";
 import Modal from "@/components/knowledge-page/KnowledgeModal";
+import { FaSortUp, FaSortDown } from "react-icons/fa";
+
+type SortColumn = "name" | "clickRate" | null;
+type SortDirection = "asc" | "desc";
 
 export default function KnowledgeTable() {
   const [knowledgeItems, setKnowledgeItems] = useState<KnowledgeItem[]>([]);
@@ -10,18 +13,22 @@ export default function KnowledgeTable() {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editData, setEditData] = useState<KnowledgeItem | null>(null);
 
+  const [sortColumn, setSortColumn] = useState<SortColumn>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+
   useEffect(() => {
     const fetchKnowledge = async () => {
       try {
         const res = await fetch("/api/knowledge");
-        const data: KnowledgeItem[] = await res.json();
+        let data: KnowledgeItem[] = await res.json();
 
-        const sortedData = data.sort(
+        // Default sorting: newest first
+        data = data.sort(
           (a, b) =>
             new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
         );
 
-        setKnowledgeItems(sortedData);
+        setKnowledgeItems(data);
       } catch (err) {
         console.error("Failed to fetch knowledge items:", err);
       } finally {
@@ -31,6 +38,38 @@ export default function KnowledgeTable() {
 
     fetchKnowledge();
   }, []);
+
+  const sortData = (column: SortColumn) => {
+    let direction: SortDirection = "asc";
+
+    if (sortColumn === column) {
+      direction = sortDirection === "asc" ? "desc" : "asc";
+    }
+
+    setSortColumn(column);
+    setSortDirection(direction);
+
+    const sorted = [...knowledgeItems].sort((a, b) => {
+      if (column === "name") {
+        const nameA = a.name.toLowerCase();
+        const nameB = b.name.toLowerCase();
+        return direction === "asc"
+          ? nameA.localeCompare(nameB)
+          : nameB.localeCompare(nameA);
+      }
+
+      if (column === "clickRate") {
+        // NOTE: Replace 24 with actual clickRate from `a.clickRate` if available
+        const rateA = 24;
+        const rateB = 24;
+        return direction === "asc" ? rateA - rateB : rateB - rateA;
+      }
+
+      return 0;
+    });
+
+    setKnowledgeItems(sorted);
+  };
 
   const handleDelete = async (
     id: number,
@@ -70,13 +109,37 @@ export default function KnowledgeTable() {
       <table className="min-w-full table-fixed text-[16px] text-gray-600">
         <thead className="bg-white text-[#222] font-semibold">
           <tr>
-            <th className="px-4 py-3 font-semibold text-left">Document Name</th>
+            <th
+              className="px-4 py-3 font-semibold text-left cursor-pointer"
+              onClick={() => sortData("name")}
+            >
+              Document Name{" "}
+              {sortColumn === "name" &&
+                (sortDirection === "asc" ? (
+                  <FaSortUp className="inline-block ml-1 text-m" />
+                ) : (
+                  <FaSortDown className="inline-block ml-1 text-m" />
+                ))}
+            </th>
+
             <th className="px-4 py-3 font-semibold text-center">
               Document Type
             </th>
             <th className="px-4 py-3 font-semibold text-center">Categories</th>
             <th className="px-4 py-3 font-semibold text-center">Fields</th>
-            <th className="px-4 py-3 font-semibold text-center">Click Rate</th>
+            <th
+              className="px-4 py-3 font-semibold text-center cursor-pointer"
+              onClick={() => sortData("clickRate")}
+            >
+              Click Rate{" "}
+              {sortColumn === "clickRate" &&
+                (sortDirection === "asc" ? (
+                  <FaSortUp className="inline-block ml-1 text-m" />
+                ) : (
+                  <FaSortDown className="inline-block ml-1 text-m" />
+                ))}
+            </th>
+
             <th className="px-4 py-3 font-semibold text-center">
               Document Date
             </th>
@@ -98,7 +161,6 @@ export default function KnowledgeTable() {
                   {doc.name}
                 </div>
               </td>
-
               <td className="px-4 py-3 text-center">
                 <span className="bg-gray-100 text-[#85878B] px-2 py-1 rounded text-[14px]">
                   {doc.type.toUpperCase()}

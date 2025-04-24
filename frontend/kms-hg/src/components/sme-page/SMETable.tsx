@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { SMEItem } from "@/types";
+import { FaSortUp, FaSortDown } from "react-icons/fa";
 
 type SMETableProps = {
   data: SMEItem[];
@@ -9,12 +11,42 @@ type SMETableProps = {
 };
 
 export default function SMETable({ data, onEdit, onDelete }: SMETableProps) {
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [sortedData, setSortedData] = useState<SMEItem[]>(data);
+
+  const handleSortName = () => {
+    const newDirection = sortDirection === "asc" ? "desc" : "asc";
+    setSortDirection(newDirection);
+
+    const sorted = [...data].sort((a, b) => {
+      const nameA = a.name.toLowerCase();
+      const nameB = b.name.toLowerCase();
+      return newDirection === "asc"
+        ? nameA.localeCompare(nameB)
+        : nameB.localeCompare(nameA);
+    });
+
+    setSortedData(sorted);
+  };
+
+  const tableData = sortedData.length ? sortedData : data;
+
   return (
     <div className="overflow-x-auto rounded-lg">
       <table className="min-w-full table-fixed text-[16px] text-gray-600">
         <thead className="bg-white text-[#222] font-semibold">
           <tr>
-            <th className="px-4 py-3 text-left">Expert Name</th>
+            <th
+              className="px-4 py-3 text-left cursor-pointer"
+              onClick={handleSortName}
+            >
+              Expert Name{" "}
+              {sortDirection === "asc" ? (
+                <FaSortUp className="inline-block ml-1 text-m" />
+              ) : (
+                <FaSortDown className="inline-block ml-1 text-m" />
+              )}
+            </th>
             <th className="px-4 py-3 text-left">Email</th>
             <th className="px-4 py-3 text-center">Area of Expertise</th>
             <th className="px-4 py-3 text-center">SBU</th>
@@ -23,7 +55,7 @@ export default function SMETable({ data, onEdit, onDelete }: SMETableProps) {
           </tr>
         </thead>
         <tbody>
-          {data.map((sme, index) => (
+          {tableData.map((sme, index) => (
             <tr
               key={sme.id}
               className={index % 2 === 0 ? "bg-[#FCFBFC]" : "bg-white"}
@@ -62,7 +94,7 @@ export default function SMETable({ data, onEdit, onDelete }: SMETableProps) {
                   <img
                     src="/edit_icon.png"
                     alt="Edit"
-                    className="h-[15px] w-[15px]"
+                    className="h-[12px] w-[12px]"
                   />
                 </button>
                 <button
@@ -72,7 +104,7 @@ export default function SMETable({ data, onEdit, onDelete }: SMETableProps) {
                   <img
                     src="/delete_icon.png"
                     alt="Delete"
-                    className="h-[15px] w-[13px]"
+                    className="h-[12px] w-[11px]"
                   />
                 </button>
               </td>
