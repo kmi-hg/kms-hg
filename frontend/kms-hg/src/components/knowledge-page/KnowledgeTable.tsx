@@ -7,7 +7,17 @@ import { FaSortUp, FaSortDown } from "react-icons/fa";
 type SortColumn = "name" | "clickRate" | null;
 type SortDirection = "asc" | "desc";
 
-export default function KnowledgeTable() {
+type KnowledgeTableProps = {
+  searchQuery: string;
+  selectedFields: string;
+  selectedType: string;
+};
+
+export default function KnowledgeTable({
+  searchQuery,
+  selectedFields,
+  selectedType,
+}: KnowledgeTableProps) {
   const [knowledgeItems, setKnowledgeItems] = useState<KnowledgeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -22,7 +32,6 @@ export default function KnowledgeTable() {
         const res = await fetch("/api/knowledge");
         let data: KnowledgeItem[] = await res.json();
 
-        // Default sorting: newest first
         data = data.sort(
           (a, b) =>
             new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
@@ -41,7 +50,6 @@ export default function KnowledgeTable() {
 
   const sortData = (column: SortColumn) => {
     let direction: SortDirection = "asc";
-
     if (sortColumn === column) {
       direction = sortDirection === "asc" ? "desc" : "asc";
     }
@@ -59,8 +67,7 @@ export default function KnowledgeTable() {
       }
 
       if (column === "clickRate") {
-        // NOTE: Replace 24 with actual clickRate from `a.clickRate` if available
-        const rateA = 24;
+        const rateA = 24; // Dummy rate, ganti jika ada properti asli
         const rateB = 24;
         return direction === "asc" ? rateA - rateB : rateB - rateA;
       }
@@ -100,6 +107,22 @@ export default function KnowledgeTable() {
     }
   };
 
+  const filteredItems = knowledgeItems.filter((item) => {
+    const matchesSearch = [item.name, item.tags, item.field]
+      .join(" ")
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+
+    const matchesField =
+      selectedFields === "Fields" || item.field === selectedFields;
+
+    const matchesType =
+      selectedType === "Type" ||
+      item.type.toLowerCase() === selectedType.toLowerCase();
+
+    return matchesSearch && matchesField && matchesType;
+  });
+
   if (loading) {
     return <p className="text-gray-500 text-sm px-4 py-2">Loading...</p>;
   }
@@ -121,7 +144,6 @@ export default function KnowledgeTable() {
                   <FaSortDown className="inline-block ml-1 text-m" />
                 ))}
             </th>
-
             <th className="px-4 py-3 font-semibold text-center">
               Document Type
             </th>
@@ -139,18 +161,15 @@ export default function KnowledgeTable() {
                   <FaSortDown className="inline-block ml-1 text-m" />
                 ))}
             </th>
-
             <th className="px-4 py-3 font-semibold text-center">
               Document Date
             </th>
-            <th className="px-4 py-3 font-semibold text-center">
-              Operation Selected
-            </th>
+            <th className="px-4 py-3 font-semibold text-center">Operation</th>
           </tr>
         </thead>
 
         <tbody>
-          {knowledgeItems.map((doc, index) => (
+          {filteredItems.map((doc, index) => (
             <tr
               key={doc.id}
               className={index % 2 === 0 ? "bg-[#FCFBFC]" : "bg-white"}
@@ -182,13 +201,13 @@ export default function KnowledgeTable() {
                   minute: "2-digit",
                 })}
               </td>
-              <td className="px-4 py-3 flex flex-row gap-[5px] justify-between">
+              <td className="px-4 py-3 flex gap-2 justify-center">
                 <button
                   onClick={() => {
                     setEditData(doc);
                     setEditModalOpen(true);
                   }}
-                  className="w-full h-[24px] border border-[#EAECEB] rounded-[4px] text-gray-600 text-center items-center cursor-pointer flex justify-center"
+                  className="w-[32px] h-[24px] border border-[#EAECEB] rounded-[4px] flex items-center justify-center"
                 >
                   <img
                     src="/edit_icon.png"
@@ -198,7 +217,7 @@ export default function KnowledgeTable() {
                 </button>
                 <button
                   onClick={() => handleDelete(doc.id, doc.path, doc.type)}
-                  className="w-full h-[24px] border border-[#EAECEB] rounded-[4px] text-gray-600 text-center items-center cursor-pointer flex justify-center"
+                  className="w-[32px] h-[24px] border border-[#EAECEB] rounded-[4px] flex items-center justify-center"
                 >
                   <img
                     src="/delete_icon.png"

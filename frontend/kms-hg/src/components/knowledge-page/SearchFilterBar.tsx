@@ -14,7 +14,9 @@ interface SearchFilterBarProps {
   TypeOptions: string[];
   viewMode: "grid" | "list";
   setViewMode: (value: "grid" | "list") => void;
-  isOverview: boolean; 
+  isOverview: boolean;
+  searchQuery: string;
+  setSearchQuery: (value: string) => void;
 }
 
 export default function SearchFilterBar({
@@ -30,13 +32,21 @@ export default function SearchFilterBar({
   TypeOptions,
   viewMode,
   setViewMode,
-  isOverview, 
+  isOverview,
+  searchQuery,
+  setSearchQuery,
 }: SearchFilterBarProps) {
   return (
     <div className="w-full h-[70px] border border-[#c2c2c2] rounded-[12px] px-[23.5px] py-[14px] flex gap-[13px] justify-center items-center mb-[20px]">
       {/* Search */}
-      <div className="w-full h-full border border-[#c2c2c2] rounded-[12px] px-[18px] py-[9px]">
-        <p className="text-[#6A6969]">Search</p>
+      <div className="w-full h-full border border-[#c2c2c2] rounded-[12px] px-[18px] py-[9px] flex items-center">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search..."
+          className="w-full text-sm text-[#6A6969] border-none outline-none focus:outline-none focus:border-none"
+        />
       </div>
 
       {/* Filters */}
@@ -121,7 +131,7 @@ export default function SearchFilterBar({
           )}
         </div>
 
-        {/* View Mode - Only for Overview */}
+        {/* View Mode Toggle */}
         {isOverview && (
           <>
             <div

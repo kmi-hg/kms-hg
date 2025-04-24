@@ -4,7 +4,17 @@ import { useEffect, useState } from "react";
 import { KnowledgeCard } from "@/app";
 import type { KnowledgeItem } from "@/types";
 
-export default function KnowledgeList() {
+type KnowledgeListProps = {
+  searchQuery: string;
+  selectedField: string;
+  selectedType: string;
+};
+
+export default function KnowledgeList({
+  searchQuery,
+  selectedField,
+  selectedType,
+}: KnowledgeListProps) {
   const [data, setData] = useState<KnowledgeItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -17,16 +27,25 @@ export default function KnowledgeList() {
         return res.json();
       })
       .then((data) => {
-        console.log("Fetched data:", data);
         setData(data || []);
         setLoading(false);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
-        setData([]); 
+        setData([]);
         setLoading(false);
       });
   }, []);
+
+  const filteredData = data.filter((item) => {
+    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesField =
+      selectedField === "Fields" || item.field === selectedField;
+    const matchesType =
+      selectedType === "Type" || item.type.toUpperCase() === selectedType.toUpperCase();
+
+    return matchesSearch && matchesField && matchesType;
+  });
 
   if (loading) {
     return (
@@ -36,17 +55,19 @@ export default function KnowledgeList() {
     );
   }
 
-  if (data.length === 0) {
+  if (filteredData.length === 0) {
     return (
       <div className="flex items-center justify-center w-full h-[200px]">
-        <p className="text-gray-400 text-sm font-figtree">No file added</p>
+        <p className="text-gray-400 text-sm font-figtree">
+          No files match your search or filter
+        </p>
       </div>
     );
   }
 
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 lg:gap-[17px]">
-      {data.map((item) => (
+      {filteredData.map((item) => (
         <KnowledgeCard key={item.id} item={item} />
       ))}
     </div>

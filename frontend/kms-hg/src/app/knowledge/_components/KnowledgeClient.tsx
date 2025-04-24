@@ -60,6 +60,9 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
     setIsOpenType,
   } = useFilter();
 
+  const [searchQuery, setSearchQuery] = useState("");
+  
+
   return (
     <div>
       <Header />
@@ -124,13 +127,19 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
           viewMode={viewMode}
           setViewMode={setViewMode}
           isOverview={activeTab === "overview"}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
         />
 
         {/* Main Content */}
         {activeTab === "overview" ? (
           viewMode === "grid" ? (
             <div>
-              <KnowledgeList />
+              <KnowledgeList
+                searchQuery={searchQuery}
+                selectedField={selectedFields}
+                selectedType={selectedType}
+              />
             </div>
           ) : (
             <div className="flex items-center justify-center w-full h-[200px]">
@@ -176,7 +185,8 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
                 </p>
               </div>
             </div>
-            <KnowledgeTable />
+            <KnowledgeTable searchQuery={searchQuery}     selectedFields={selectedFields}
+        selectedType={selectedType} />
           </>
         )}
       </section>
