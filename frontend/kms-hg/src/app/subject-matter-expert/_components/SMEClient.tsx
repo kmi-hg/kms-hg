@@ -6,7 +6,6 @@ import SMEDetailModal from "../../../components/sme-page/SMEDetailModal";
 import TabNavigation from "../../../components/sme-page/TabNavigation";
 import SearchFilterBar from "@/components/sme-page/SearchFilterBar";
 import { useFilter } from "@/hooks/useFilter";
-import Image from "next/image";
 import SMETable from "@/components/sme-page/SMETable";
 
 interface SME {
@@ -67,15 +66,7 @@ export default function SMEClient({ role }: SMEClientProps) {
   }, []);
 
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-
-  const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setProfilePicture(file);
-      setPreviewUrl(URL.createObjectURL(file));
-    }
-  };
+  const [, setPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchSMEs = async () => {
@@ -99,65 +90,6 @@ export default function SMEClient({ role }: SMEClientProps) {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!name || !email || !sbu || !bio || !selectedExpertise) {
-      alert("Please fill in all fields.");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("email", email);
-    formData.append("sbu", sbu);
-    formData.append("bio", bio);
-    formData.append("area_of_expertise", selectedExpertise);
-    if (profilePicture) {
-      formData.append("profile_picture", profilePicture);
-    }
-
-    if (isEditMode && selectedSME) {
-      formData.append("id", selectedSME.id.toString());
-    }
-
-    try {
-      const res = await fetch("/api/expert", {
-        method: isEditMode ? "PUT" : "POST",
-        body: formData,
-      });
-
-      if (res.ok) {
-        alert(
-          isEditMode
-            ? "SME updated successfully!"
-            : "SME uploaded successfully!"
-        );
-        setName("");
-        setEmail("");
-        setSbu("");
-        setBio("");
-        setSelectedExpertise("");
-        setProfilePicture(null);
-        setPreviewUrl(null);
-        setSelectedSME(null);
-        setIsEditMode(false);
-        setActiveTab("overview");
-
-        const updated = await fetch("/api/expert");
-        const data = await updated.json();
-        setSmeList(data);
-      } else {
-        const error = await res.json();
-        alert(error.error || "Upload failed");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Something went wrong!");
-    }
-  };
-
-  // ✅ Filtering for overview (grid view with cards)
   const filteredSMEs = useMemo(() => {
     return smeList.filter((item) => {
       const matchesSearch =

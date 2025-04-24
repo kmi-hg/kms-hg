@@ -5,12 +5,6 @@ import { PlayIcon, PauseIcon, ForwardIcon, RewindIcon } from "lucide-react";
 import Image from "next/image";
 import { Button } from "./Button";
 
-interface Track {
-  title: string;
-  artist: string;
-  src: string;
-}
-
 const AudioPlayer: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [track, setTrack] = useState<Track | null>(null);
@@ -26,13 +20,6 @@ const AudioPlayer: React.FC = () => {
       setIsPlaying(true);
     }
   }, []);
-
-  interface Track {
-    title: string;
-    artist: string;
-    src: string;
-    thumbnail?: string;
-  }
 
   interface Track {
     title: string;

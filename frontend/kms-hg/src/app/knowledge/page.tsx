@@ -1,5 +1,3 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
 import KnowledgeClient from "./_components/KnowledgeClient";
 
 export default async function KnowledgePage() {

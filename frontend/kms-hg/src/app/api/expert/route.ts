@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "../db";
-import { smeTable, sbuEnum } from "@/db/schema/expert";
+import { smeTable } from "@/db/schema/expert";
 import { eq } from "drizzle-orm";
 
 // Define SBU enum list for validation
