@@ -37,7 +37,7 @@ export default function SMEClient({ role }: SMEClientProps) {
   const [email, setEmail] = useState("");
   const [sbu, setSbu] = useState("");
   const [bio, setBio] = useState("");
-  const [, setIsEditMode] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const AreaOfExpertiseOptions = [
@@ -49,15 +49,7 @@ export default function SMEClient({ role }: SMEClientProps) {
     "Consumer",
     "Investment",
   ];
-  const SBUOptions = [
-    "Logistic",
-    "Argo Forestry",
-    "Energy",
-    "Technology & Services",
-    "Education",
-    "Consumer",
-    "Investment",
-  ];
+  const SBUOptions = [...AreaOfExpertiseOptions];
 
   const {
     selectedFields: selectedAreaOfExpertise,
@@ -91,7 +83,9 @@ export default function SMEClient({ role }: SMEClientProps) {
 
   const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    console.log("Selected file:", file);
     if (file) {
+      setProfilePicture(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewUrl(reader.result as string);
@@ -100,59 +94,82 @@ export default function SMEClient({ role }: SMEClientProps) {
     }
   };
 
+  const resetForm = () => {
+    setName("");
+    setEmail("");
+    setSbu("");
+    setBio("");
+    setSelectedExpertise("");
+    setProfilePicture(null);
+    setPreviewUrl(null);
+    setIsEditMode(false);
+    setSelectedSME(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
- 
+
+    console.log("Form values:", {
+      profilePicture,
+      name,
+      email,
+      sbu,
+      bio,
+      selectedExpertise,
+      isEditMode,
+    });
+
     if (
-      !profilePicture ||
-      !name ||
-      !email ||
-      !sbu ||
-      !bio ||
-      !selectedExpertise
+      (!profilePicture && !isEditMode) ||
+      !name.trim() ||
+      !email.trim() ||
+      !sbu.trim() ||
+      !bio.trim() ||
+      !selectedExpertise.trim()
     ) {
-      alert("Please fill in all fields.");
+      alert("Please fill in all required fields.");
       return;
     }
 
     const formData = new FormData();
-    formData.append("profile_picture", profilePicture);
+    if (profilePicture) {
+      formData.append("profile_picture", profilePicture);
+    }
     formData.append("name", name);
     formData.append("email", email);
     formData.append("sbu", sbu);
     formData.append("bio", bio);
     formData.append("area_of_expertise", selectedExpertise);
 
+    if (isEditMode && selectedSME) {
+      formData.append("id", String(selectedSME.id));
+    }
+
     try {
+      const method = isEditMode ? "PUT" : "POST";
       const res = await fetch("/api/expert", {
-        method: "POST",
+        method,
         body: formData,
       });
 
       if (res.ok) {
-        alert("SME uploaded successfully!");
-        // Optional: clear form
-        setName("");
-        setEmail("");
-        setSbu("");
-        setBio("");
-        setSelectedExpertise("");
-        setProfilePicture(null);
-        setPreviewUrl(null);
+        alert(
+          isEditMode ? "SME updated successfully!" : "SME added successfully!"
+        );
+        resetForm();
         setActiveTab("overview");
-        // Refresh list
+
         const updated = await fetch("/api/expert");
         const data = await updated.json();
         setSmeList(data);
       } else {
         const error = await res.json();
-        alert(error.error || "Upload failed");
+        alert(error.error || "Submission failed");
       }
     } catch (err) {
       console.error(err);
       alert("Something went wrong!");
     }
-    console.log({ name, email, sbu, bio, selectedExpertise, previewUrl });
   };
 
   const filteredSMEs = useMemo(() => {
@@ -223,12 +240,14 @@ export default function SMEClient({ role }: SMEClientProps) {
         </div>
       ) : (
         <>
-          <div className="flex gap-[50px]">
-            {/* Left: Profile Picture Upload */}
+          <form onSubmit={handleSubmit} className="flex gap-[50px]">
+            {/* Profile Picture Upload */}
             <div className="h-[210px] w-[210px] flex justify-center items-start">
               <div
                 className="w-[210px] h-[210px] rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-4xl cursor-pointer relative overflow-hidden"
-                onClick={() => document.getElementById("profile-upload")?.click()}
+                onClick={() =>
+                  document.getElementById("profile-upload")?.click()
+                }
               >
                 {previewUrl ? (
                   <Image
@@ -251,35 +270,41 @@ export default function SMEClient({ role }: SMEClientProps) {
               </div>
             </div>
 
-            {/* Right: Form */}
+            {/* Form Fields */}
             <div className="w-full flex flex-col gap-6">
               <div className="grid md:grid-cols-3 gap-[20px]">
                 <div>
-                  <label className="text-[18px] font-medium text-black">Name</label>
+                  <label className="text-[18px] font-medium text-black">
+                    Name
+                  </label>
                   <input
                     type="text"
-                    className="w-full text-black border border-gray-300 rounded-md px-3 py-2 mt-[12px]"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 mt-[12px] text-black"
                     placeholder="Enter name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                   />
                 </div>
                 <div>
-                  <label className="text-[18px] font-medium text-black">Email</label>
+                  <label className="text-[18px] font-medium text-black">
+                    Email
+                  </label>
                   <input
                     type="email"
-                    className="w-full text-black border border-gray-300 rounded-md px-3 py-2 mt-[12px]"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 mt-[12px] text-black"
                     placeholder="Enter email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
                 <div>
-                  <label className="text-[18px] font-medium text-black">SBU</label>
+                  <label className="text-[18px] font-medium text-black">
+                    SBU
+                  </label>
                   <select
                     value={sbu}
                     onChange={(e) => setSbu(e.target.value)}
-                    className="w-full text-black border border-gray-300 rounded-md px-3 py-2 mt-[12px]"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 mt-[12px] text-black"
                   >
                     <option value="">Select SBU</option>
                     {SBUOptions.map((option) => (
@@ -293,9 +318,11 @@ export default function SMEClient({ role }: SMEClientProps) {
 
               <div className="grid md:grid-cols-3 gap-[20px]">
                 <div className="md:col-span-2">
-                  <label className="text-[18px] font-medium text-black">Bio</label>
+                  <label className="text-[18px] font-medium text-black">
+                    Bio
+                  </label>
                   <textarea
-                    className="w-full text-black border border-gray-300 rounded-md mt-[12px] px-3 py-2 h-[150px]"
+                    className="w-full border border-gray-300 rounded-md mt-[12px] px-3 py-2 h-[150px] "
                     placeholder="Enter bio"
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
@@ -332,15 +359,14 @@ export default function SMEClient({ role }: SMEClientProps) {
                     <button
                       type="submit"
                       className="bg-[#3A40D4] text-white px-6 py-2 rounded-[8px] text-[16px] transition w-[115px] h-[41px]"
-                      onClick={handleSubmit}
                     >
-                      Add
+                      {isEditMode ? "Update" : "Add"}
                     </button>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </form>
 
           <br />
 
@@ -350,7 +376,9 @@ export default function SMEClient({ role }: SMEClientProps) {
             selectedSBU={selectedSBU}
             searchQuery={searchQuery}
             onDelete={async (id) => {
-              const confirmDelete = window.confirm("Are you sure you want to delete this expert?");
+              const confirmDelete = window.confirm(
+                "Are you sure you want to delete this expert?"
+              );
               if (!confirmDelete) return;
 
               try {
