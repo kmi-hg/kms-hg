@@ -322,7 +322,7 @@ export default function SMEClient({ role }: SMEClientProps) {
                     Bio
                   </label>
                   <textarea
-                    className="w-full border border-gray-300 rounded-md mt-[12px] px-3 py-2 h-[150px] "
+                    className="w-full border border-gray-300 rounded-md mt-[12px] px-3 py-2 h-[150px] text-black"
                     placeholder="Enter bio"
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
@@ -376,11 +376,6 @@ export default function SMEClient({ role }: SMEClientProps) {
             selectedSBU={selectedSBU}
             searchQuery={searchQuery}
             onDelete={async (id) => {
-              const confirmDelete = window.confirm(
-                "Are you sure you want to delete this expert?"
-              );
-              if (!confirmDelete) return;
-
               try {
                 const res = await fetch(`/api/expert`, {
                   method: "DELETE",

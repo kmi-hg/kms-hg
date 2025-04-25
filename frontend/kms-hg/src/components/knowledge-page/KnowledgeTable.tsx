@@ -1,8 +1,10 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { KnowledgeItem } from "@/types";
 import Modal from "@/components/knowledge-page/KnowledgeModal";
 import { FaSortUp, FaSortDown } from "react-icons/fa";
+import DeleteConfirmationModal from "../knowledge-page/DeleteConfirmationModal";
 
 type SortColumn = "name" | "clickRate" | null;
 type SortDirection = "asc" | "desc";
@@ -22,6 +24,8 @@ export default function KnowledgeTable({
   const [loading, setLoading] = useState(true);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editData, setEditData] = useState<KnowledgeItem | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<KnowledgeItem | null>(null);
 
   const [sortColumn, setSortColumn] = useState<SortColumn>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
@@ -50,6 +54,7 @@ export default function KnowledgeTable({
 
   const sortData = (column: SortColumn) => {
     let direction: SortDirection = "asc";
+
     if (sortColumn === column) {
       direction = sortDirection === "asc" ? "desc" : "asc";
     }
@@ -67,7 +72,7 @@ export default function KnowledgeTable({
       }
 
       if (column === "clickRate") {
-        const rateA = 24; // Dummy rate, ganti jika ada properti asli
+        const rateA = 24; // Dummy rate, replace if actual rate is available
         const rateB = 24;
         return direction === "asc" ? rateA - rateB : rateB - rateA;
       }
@@ -83,10 +88,7 @@ export default function KnowledgeTable({
     path: string,
     type: "pdf" | "mp3"
   ) => {
-    const confirm = window.confirm(
-      "Are you sure you want to delete this item?"
-    );
-    if (!confirm) return;
+    if (!itemToDelete) return;
 
     try {
       const res = await fetch("/api/knowledge", {
@@ -97,6 +99,8 @@ export default function KnowledgeTable({
 
       if (res.ok) {
         setKnowledgeItems((prev) => prev.filter((item) => item.id !== id));
+        setDeleteModalOpen(false); // Close the modal after deletion
+        setItemToDelete(null); // Reset item to delete
       } else {
         const err = await res.json();
         alert(`Failed to delete: ${err.error}`);
@@ -216,7 +220,10 @@ export default function KnowledgeTable({
                   />
                 </button>
                 <button
-                  onClick={() => handleDelete(doc.id, doc.path, doc.type)}
+                  onClick={() => {
+                    setItemToDelete(doc);
+                    setDeleteModalOpen(true);
+                  }}
                   className="w-[32px] h-[24px] border border-[#EAECEB] rounded-[4px] flex items-center justify-center"
                 >
                   <img
@@ -250,6 +257,18 @@ export default function KnowledgeTable({
           }}
         />
       )}
+
+      {/* Add the custom delete confirmation modal */}
+      <DeleteConfirmationModal
+        isOpen={deleteModalOpen}
+        closeModal={() => setDeleteModalOpen(false)}
+        onDelete={() => {
+          if (itemToDelete) {
+            handleDelete(itemToDelete.id, itemToDelete.path, itemToDelete.type);
+          }
+        }}
+        itemName={itemToDelete?.name || ""}
+      />
     </div>
   );
 }

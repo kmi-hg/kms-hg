@@ -1,8 +1,7 @@
-"use client";
-
 import { useState, useMemo } from "react";
 import { SMEItem } from "@/types";
 import { FaSortUp, FaSortDown } from "react-icons/fa";
+import DeleteConfirmationModal from "./DeleteConfirmationModal"; // Import the modal
 
 type SMETableProps = {
   data: SMEItem[];
@@ -24,6 +23,10 @@ export default function SMETable({
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [sortColumn, setSortColumn] = useState<"name" | null>(null);
 
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedSMEToDelete, setSelectedSMEToDelete] =
+    useState<SMEItem | null>(null);
+
   const handleSortName = () => {
     const newDirection = sortDirection === "asc" ? "desc" : "asc";
     setSortDirection(newDirection);
@@ -36,13 +39,14 @@ export default function SMETable({
         selectedAreaOfExpertise === "Area of Expertise" ||
         item.area_of_expertise === selectedAreaOfExpertise;
 
-      const matchesSBU =
-        selectedSBU === "SBU" || item.sbu === selectedSBU;
+      const matchesSBU = selectedSBU === "SBU" || item.sbu === selectedSBU;
 
       const matchesSearch =
         item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.area_of_expertise.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.area_of_expertise
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
         item.sbu.toLowerCase().includes(searchQuery.toLowerCase());
 
       return matchesExpertise && matchesSBU && matchesSearch;
@@ -61,6 +65,19 @@ export default function SMETable({
     }
     return filteredData;
   }, [filteredData, sortColumn, sortDirection]);
+
+  // Handle delete confirmation modal
+  const handleDeleteConfirmation = (sme: SMEItem) => {
+    setSelectedSMEToDelete(sme);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (selectedSMEToDelete) {
+      await onDelete(selectedSMEToDelete.id); // Pass delete function
+      setIsDeleteModalOpen(false);
+    }
+  };
 
   return (
     <div className="overflow-x-auto rounded-lg">
@@ -126,7 +143,7 @@ export default function SMETable({
                   />
                 </button>
                 <button
-                  onClick={() => onDelete(sme.id)}
+                  onClick={() => handleDeleteConfirmation(sme)} // Open modal
                   className="border border-[#EAECEB] p-1 rounded-[4px] hover:bg-gray-50 w-full flex justify-center"
                 >
                   <img
@@ -140,6 +157,14 @@ export default function SMETable({
           ))}
         </tbody>
       </table>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        closeModal={() => setIsDeleteModalOpen(false)}
+        onDelete={handleDelete}
+        itemName={selectedSMEToDelete ? selectedSMEToDelete.name : ""}
+      />
     </div>
   );
 }
