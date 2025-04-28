@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { signOut } from "next-auth/react"
 
 export default function Header() {
   return (
@@ -33,7 +34,7 @@ export default function Header() {
           ))}
         </div>
         <div className="flex items-center gap-[6px]">
-          <div className="h-[30px] w-[30px] relative">
+          <div className="h-[30px] w-[30px] relative" >
             <Image
               src="/profile.png"
               alt="User Profile"
@@ -51,6 +52,7 @@ export default function Header() {
               sizes="16px"
             />
           </div>
+          <button onClick={() => signOut()}>Sign Out</button>
         </div>
       </div>
     </div>

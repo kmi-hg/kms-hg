@@ -1,12 +1,12 @@
 import KnowledgeClient from "./_components/KnowledgeClient";
+import { auth } from "@/auth";
 
 export default async function KnowledgePage() {
-  // const { userId } = await auth();
-  // console.log("userId:", userId);
-  // if (!userId) redirect("/");
+  const session = await auth();
+  
+  const role = session?.user.role || "Karyawan";
 
-  // const user = await currentUser();
-  // const role = (user?.publicMetadata?.role as string) || "";
-  const role = "KMI";
+  console.log("User role:", session);
+  
   return <KnowledgeClient role={role} />;
 }

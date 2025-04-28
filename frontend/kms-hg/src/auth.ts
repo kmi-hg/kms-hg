@@ -3,6 +3,35 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { supabase } from "@/lib/supabaseClient";
 
+declare module "next-auth" {
+  /**
+   * Returned by `auth`, `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
+   */
+  interface Session {
+    user: {
+      nrp: string;
+      role: string;
+    }
+  }
+
+  interface User  {
+    nrp: string;
+      role: string;
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { JWT } from "next-auth/jwt"
+ 
+declare module "next-auth/jwt" {
+  /** Returned by the `jwt` callback and `auth`, when using JWT sessions */
+  interface JWT {
+    /** OpenID ID Token */
+    nrp: string;
+      role: string;
+  }
+}
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Credentials({
@@ -25,6 +54,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           .eq("nrp", credentials.nrp)
           .single();
 
+        console.log("Supabase data:", data, "Error:", error);
+
         if (error || !data) {
           console.log("Error or no data found:", error);
           return null;
@@ -32,7 +63,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const isPasswordValid = await bcrypt.compare(
           credentials.password as string,
-          data.password
+          data.password as string
         );
 
         if (!isPasswordValid) {
@@ -40,18 +71,32 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null;
         }
 
-        const user = {
-          id: data.id,
-          name: data.name,
-          nrp: data.nrp,
-          role: data.role,
-        };
-
-        return user;
+        return data;
       },
     }),
   ],
   pages: {
     signIn: "/login",
   },
-});
+  callbacks: {
+    authorized: async ({ auth }) => {
+      // Logged in users are authenticated, otherwise redirect to login page
+      return !!auth
+    },
+    jwt({ token, user }) {
+      if (user) { // User is available during sign-in
+        token.name = user.name
+        token.nrp = user.nrp
+        token.role = user.role
+      }
+      return token
+    },
+    session({ session, token }) {
+      session.user.name = token.name
+      session.user.nrp = token.nrp
+    session.user.role = token.role
+      return session
+    },
+  },
+  },
+);
