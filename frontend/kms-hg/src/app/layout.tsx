@@ -1,3 +1,5 @@
+// app/layout.tsx
+import SessionProviderWrapper from '../components/sessionproviderWrapper';
 import type { Metadata } from "next";
 import "./globals.css";
 import { Figtree } from "next/font/google";
@@ -20,7 +22,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={figtree.className}>
-      <body>{children}</body>
+      <body>
+        <SessionProviderWrapper>{children}</SessionProviderWrapper>
+      </body>
     </html>
   );
 }
