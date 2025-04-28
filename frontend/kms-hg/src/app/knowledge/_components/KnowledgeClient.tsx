@@ -20,22 +20,7 @@ type KnowledgeClientProps = {
 };
 
 export default function KnowledgeClient({ role }: KnowledgeClientProps) {
-  const userRole = role;
-
-  const FieldsOptions = [
-    "Corsec/Corplan",
-    "Operation",
-    "HCGS",
-    "Procurement",
-    "Others",
-    "Fleet Mgt",
-    "FAT",
-    "GRCD",
-    "Legal & permit",
-    "Marketing & Sales",
-  ];
-  const TypeOptions = ["PDF", "MP3"];
-
+  // Call hooks unconditionally
   const [activeTab, setActiveTab] = useState<"overview" | "add">("overview");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
@@ -61,6 +46,27 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
   } = useFilter();
 
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Make sure role is valid
+  if (!role) {
+    return <div>Error: Role tidak ditemukan</div>;
+  }
+
+  const userRole = role;  // Ensure userRole is available and valid
+
+  const FieldsOptions = [
+    "Corsec/Corplan",
+    "Operation",
+    "HCGS",
+    "Procurement",
+    "Others",
+    "Fleet Mgt",
+    "FAT",
+    "GRCD",
+    "Legal & permit",
+    "Marketing & Sales",
+  ];
+  const TypeOptions = ["PDF", "MP3"];
 
   return (
     <div>
@@ -107,7 +113,7 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
           All Files
         </h2>
 
-        {/* ✅ Render TabNavigation only for role "KMI" */}
+        {/* Render TabNavigation hanya untuk role "KMI" */}
         {userRole === "KMI" && (
           <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
         )}

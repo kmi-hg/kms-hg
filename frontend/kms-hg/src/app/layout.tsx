@@ -3,6 +3,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Figtree } from "next/font/google";
+import { SessionProvider } from "next-auth/react";  // Import SessionProvider
 
 export const metadata: Metadata = {
   title: "KMS Hasnur Group",
@@ -23,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={figtree.className}>
       <body>
-        {children}
+        <SessionProvider>{children}</SessionProvider> {/* Wrap children with SessionProvider */}
       </body>
     </html>
   );
