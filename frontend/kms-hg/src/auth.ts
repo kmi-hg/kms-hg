@@ -11,24 +11,24 @@ declare module "next-auth" {
     user: {
       nrp: string;
       role: string;
-    }
+    };
   }
 
-  interface User  {
+  interface User {
     nrp: string;
-      role: string;
+    role: string;
   }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { JWT } from "next-auth/jwt"
- 
+import { JWT } from "next-auth/jwt";
+
 declare module "next-auth/jwt" {
   /** Returned by the `jwt` callback and `auth`, when using JWT sessions */
   interface JWT {
     /** OpenID ID Token */
     nrp: string;
-      role: string;
+    role: string;
   }
 }
 
@@ -81,22 +81,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     authorized: async ({ auth }) => {
       // Logged in users are authenticated, otherwise redirect to login page
-      return !!auth
+      return !!auth;
     },
     jwt({ token, user }) {
-      if (user) { // User is available during sign-in
-        token.name = user.name
-        token.nrp = user.nrp
-        token.role = user.role
+      if (user) {
+        // User is available during sign-in
+        token.name = user.name;
+        token.nrp = user.nrp;
+        token.role = user.role;
       }
-      return token
+      return token;
     },
     session({ session, token }) {
-      session.user.name = token.name
-      session.user.nrp = token.nrp
-    session.user.role = token.role
-      return session
+      session.user.name = token.name;
+      session.user.nrp = token.nrp;
+      session.user.role = token.role;
+      return session;
     },
   },
+  session: {
+    strategy: "jwt",
+    maxAge: 15 * 60,
   },
-);
+});
