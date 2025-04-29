@@ -53,7 +53,7 @@ export default function Header() {
             />
           </div>
           {/* temporary sign ou button */}
-          <button className="text-black" onClick={() => signOut()}>
+          <button className="text-black font-semibold" onClick={() => signOut()}>
             Sign Out
           </button>
         </div>
