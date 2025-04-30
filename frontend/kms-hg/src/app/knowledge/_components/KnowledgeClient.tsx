@@ -20,8 +20,16 @@ type KnowledgeClientProps = {
   role: string;
 };
 
+type RecentlyOpenedFile = {
+  fileId: string;
+  fileName: string;
+  fileUrl: string;
+  size: number;
+  openedAt: string;
+  thumbnailPath?: string;
+};
+
 export default function KnowledgeClient({ role }: KnowledgeClientProps) {
-  // Call hooks unconditionally
   const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState<"overview" | "add">("overview");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -48,7 +56,9 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
   } = useFilter();
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [recentlyOpenedFiles, setRecentlyOpenedFiles] = useState<any[]>([]);
+  const [recentlyOpenedFiles, setRecentlyOpenedFiles] = useState<
+    RecentlyOpenedFile[]
+  >([]);
 
   const userRole = role;
   const userId = session?.user?.id;
@@ -63,9 +73,9 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
         }
         return res.json();
       })
-      .then((data) => {
+      .then((data: RecentlyOpenedFile[]) => {
         const sortedFiles = data.sort(
-          (a: any, b: any) =>
+          (a, b) =>
             new Date(b.openedAt).getTime() - new Date(a.openedAt).getTime()
         );
         setRecentlyOpenedFiles(sortedFiles);
@@ -99,19 +109,17 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
       <Header />
       <Modal isOpen={isModalOpen} closeModal={closeModal} file={droppedFile} />
 
-      {/* Recently Opened */}
       <section className="mt-[30px]">
         <h2 className="text-[24px] mb-[30px] font-semibold font-figtree text-black">
           Recently Opened
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[17px]">
           {recentlyOpenedFiles.slice(0, 4).map((file) => (
-            <RecentlyOpenedCard key={file.id} file={file} />
+            <RecentlyOpenedCard key={file.fileId} file={file} />
           ))}
         </div>
       </section>
 
-      {/* Features */}
       <section className="mt-[30px]">
         <h2 className="text-[24px] mb-[30px] font-semibold font-figtree text-black">
           Features
@@ -132,7 +140,6 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
         </div>
       </section>
 
-      {/* All Files Section */}
       <section className="mt-[30px]">
         <h2 className="text-[24px] font-semibold font-figtree text-black mb-[20px]">
           All Files
@@ -160,7 +167,6 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
           setSearchQuery={setSearchQuery}
         />
 
-        {/* Main Content */}
         {activeTab === "overview" ? (
           viewMode === "grid" ? (
             <KnowledgeList
