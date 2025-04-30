@@ -131,12 +131,12 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
             title="Subject Matter Expert"
             description="Ask the Expert"
           />
-          <FeatureCard
+          {/* <FeatureCard
             href="#"
             iconSrc="/HasnurChat_Icon.png"
             title="Hasnur Chat"
             description="Ask the AI"
-          />
+          /> */}
         </div>
       </section>
 
