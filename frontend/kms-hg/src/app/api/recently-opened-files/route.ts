@@ -61,3 +61,31 @@ export async function GET(req: Request) {
     );
   }
 }
+
+export async function POST(req: Request) {
+  try {
+    const { fileId, userId } = await req.json();
+
+    if (!fileId || !userId) {
+      return NextResponse.json(
+        { error: "fileId and userId are required" },
+        { status: 400 }
+      );
+    }
+
+    // Insert into the recently opened files table
+    await db.insert(recentlyOpenedFiles).values({
+      usersId: userId, // The user ID
+      fileId: fileId, // The file ID
+      openedAt: new Date(), // The timestamp for when the file was opened
+    });
+
+    return NextResponse.json({ message: "File successfully logged" });
+  } catch (error) {
+    console.error("Error adding to recently opened files:", error);
+    return NextResponse.json(
+      { error: "Failed to add to recently opened files" },
+      { status: 500 }
+    );
+  }
+}
