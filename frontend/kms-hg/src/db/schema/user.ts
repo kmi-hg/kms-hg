@@ -1,13 +1,10 @@
-import { pgEnum, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { pgEnum, pgTable, uuid, text, timestamp } from "drizzle-orm/pg-core";
 
 // Define Role enum
-export const roleEnum = pgEnum("role_enum", [
-  "KMI",
-  "Karyawan"
-]);
+export const roleEnum = pgEnum("role_enum", ["KMI", "Karyawan"]);
 
-export const userTable = pgTable("user_table", {
-  id: serial("id").primaryKey(),
+export const userTable = pgTable("users_table", {
+  id: uuid("id").primaryKey(),
   name: text("name").notNull(),
   nrp: text("nrp").notNull(),
   password: text("password").notNull(),

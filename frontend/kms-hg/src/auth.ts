@@ -49,7 +49,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         console.log("Credentials received:", credentials);
 
         const { data, error } = await supabase
-          .from("user_table")
+          .from("users_table")
           .select("*")
           .eq("nrp", credentials.nrp)
           .single();

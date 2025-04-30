@@ -7,12 +7,15 @@ const supabaseUrl = process.env.SUPABASE_URL!;
 const supabaseKey = process.env.SUPABASE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method === "POST") {
     const { nrp, password } = req.body;
 
     const { data, error } = await supabase
-      .from("user_table")
+      .from("users_table")
       .select("*")
       .eq("nrp", nrp)
       .single();
