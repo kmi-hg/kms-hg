@@ -1,14 +1,24 @@
 "use client";
 
 import { KnowledgeItem } from "@/types";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 // This function handles the double-click event
 export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
   const router = useRouter();
+  const { data: session } = useSession(); // Access the session data
 
   const handleDoubleClick = () => {
+    // Ensure that session data is available (user must be logged in)
+    if (!session) {
+      console.error("User is not logged in");
+      return;
+    }
+
+    const userId = session.user.id; // Get the logged-in user's ID from the session
+
     // Prepare the track object for MP3 files
     if (item.path && item.path.toLowerCase().trim().endsWith(".mp3")) {
       const track = {
@@ -30,22 +40,20 @@ export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
       window.open(item.path, "_blank");
     }
 
-    // Log the file in the recently opened files
+    // Log the file in the recently opened files (send `fileId` and `userId`)
     fetch("/api/recently-opened-files", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        fileId: item.id,
-        fileName: item.name,
-        fileUrl: item.path,
+        fileId: item.id, // Pass fileId from the KnowledgeCard item
+        userId: userId, // Pass the logged-in user's ID
       }),
     }).catch((error) => {
       console.error("Error adding to recently opened:", error);
     });
   };
-
   return (
     <div
       onDoubleClick={handleDoubleClick}
