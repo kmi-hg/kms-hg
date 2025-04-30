@@ -27,6 +27,5 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: figtree;
-  padding: 16px 80px;
 }
 

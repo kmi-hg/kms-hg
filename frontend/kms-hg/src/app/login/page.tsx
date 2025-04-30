@@ -1,70 +1,101 @@
 "use client";
 import { useState } from "react";
 import { signInAction } from "./loginAction";
+import { Eye, EyeOff } from "lucide-react"; // optional: if using icon library
 
 const SignInPage = () => {
-
   const [error, setError] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="w-full max-w-sm p-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-semibold text-center mb-6 text-black">
-          Sign In
-        </h2>
-
-        <form
-          action={async (formdata)=>{
-            const res = await signInAction(formdata)
-            if(res){
-              setError(res)
-            }
-          }}
-        >
-          <div className="mb-4">
-            <label
-              htmlFor="nrp"
-              className="block text-sm font-medium text-gray-700"
-            >
-              NRP
-            </label>
-            <input
-              type="text"
-              id="nrp"
-              name="nrp"
-              className="mt-2 p-3 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-              required
-            />
-          </div>
-
-          <div className="mb-6 relative">
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              name="password"
-              className="mt-2 p-3 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-              required
-            />
-            <button
-              type="button"
-              className="absolute inset-y-0 right-2 flex items-center text-gray-500 hover:text-gray-700"
-            ></button>
-          </div>
-          <div className="text-gray-700">{error}</div>
-          <button
-            type="submit"
-            className="w-full py-3 bg-blue-500 text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-blue-600"
-          >
-            Sign In
-          </button>
-        </form>
+    <div className="min-h-screen flex bg-gray-50">
+      <div className="absolute p-[32px]">
+        <img
+          src="/Logo_Hasnur_Group.png"
+          alt="Hasnur Group Logo"
+          className="h-10 w-auto"
+        />
       </div>
-      
+      {/* Column 1: Sign In Form (1/3) */}
+      <div className="basis-1/3 flex items-center justify-center bg-white shadow-md">
+        <div className="w-full px-[64px]">
+          <h2 className="text-[40px] font-bold text-black text-left">
+            Sign In
+          </h2>
+          <p className="text-[14px] font-medium text-[#969696] mb-[32px] text-left">
+            Please login to access Knowledge Management System.
+          </p>
+
+          <form
+            action={async (formdata) => {
+              const res = await signInAction(formdata);
+              if (res) {
+                setError(res);
+              }
+            }}
+            className="flex flex-col justify-center"
+          >
+            <div className="mb-4">
+              <label
+                htmlFor="nrp"
+                className="text-[12px] font-medium text-black mb-[10px]"
+              >
+                NRP
+              </label>
+              <input
+                type="text"
+                id="nrp"
+                name="nrp"
+                className="mt-2 p-3 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                required
+              />
+            </div>
+
+            <div className="mb-6 relative">
+              <label
+                htmlFor="password"
+                className="text-[12px] font-medium text-black mb-[10px] block"
+              >
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  className="p-3 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black pr-10"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
+                >
+                  {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+                </button>
+              </div>
+            </div>
+
+            <div className="text-red-500 mb-2">{error}</div>
+
+            <button
+              type="submit"
+              className="w-full py-3 bg-[#3A40D4] text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg[#2A31EA]"
+            >
+              Sign In
+            </button>
+          </form>
+        </div>
+      </div>
+
+      {/* Column 2: Image (2/3) */}
+      <div className="basis-2/3 flex items-center justify-center p-3">
+        <img
+          src="/cover_signin.png"
+          alt="Cover Sign In"
+          className="w-full h-full object-cover rounded-[24px]"
+        />
+      </div>
     </div>
   );
 };

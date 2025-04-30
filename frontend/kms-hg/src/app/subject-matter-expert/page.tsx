@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic"; // Optional: if you want dynamic renderi
 
 export default function SMEPage() {
   return (
-    <div className="pt-[60px] px-4">
+    <div className="pt-[60px] px-[80px] ">
       <h1 className="text-black font-medium text-[24px] mb-2">
         Subject Matter Expert
       </h1>

@@ -193,7 +193,7 @@ export default function SMEClient({ role }: SMEClientProps) {
   }, [smeList, searchQuery, selectedAreaOfExpertise, selectedSBU]);
 
   return (
-    <>
+    <div className="pt-[16px]">
       {role === "KMI" && (
         <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
       )}
@@ -240,6 +240,7 @@ export default function SMEClient({ role }: SMEClientProps) {
         </div>
       ) : (
         <>
+          {/* Add/Edit SME Form */}
           <form onSubmit={handleSubmit} className="flex gap-[50px]">
             {/* Profile Picture Upload */}
             <div className="h-[210px] w-[210px] flex justify-center items-start">
@@ -416,6 +417,6 @@ export default function SMEClient({ role }: SMEClientProps) {
           setIsDetailOpen(false);
         }}
       />
-    </>
+    </div> 
   );
 }

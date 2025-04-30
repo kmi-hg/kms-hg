@@ -52,7 +52,7 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
     return <div>Error: Role tidak ditemukan</div>;
   }
 
-  const userRole = role;  // Ensure userRole is available and valid
+  const userRole = role; // Ensure userRole is available and valid
 
   const FieldsOptions = [
     "Corsec/Corplan",
@@ -69,13 +69,13 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
   const TypeOptions = ["PDF", "MP3"];
 
   return (
-    <div>
+    <div className="px-[80px] pt-[16px]">
       <Header />
       <Modal isOpen={isModalOpen} closeModal={closeModal} file={droppedFile} />
 
       {/* Recently Opened */}
-      <section>
-        <h2 className="text-[24px] mt-[30px] mb-[30px] font-semibold font-figtree text-black">
+      <section className="mt-[30px]">
+        <h2 className="text-[24px] mb-[30px] font-semibold font-figtree text-black">
           Recently Opened
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[17px]">
@@ -86,8 +86,8 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
       </section>
 
       {/* Features */}
-      <section>
-        <h2 className="text-[24px] mt-[30px] mb-[30px] font-semibold font-figtree text-black">
+      <section className="mt-[30px]">
+        <h2 className="text-[24px] mb-[30px] font-semibold font-figtree text-black">
           Features
         </h2>
         <div className="flex items-center gap-[30px]">
@@ -97,7 +97,6 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
             title="Subject Matter Expert"
             description="Ask the Expert"
           />
-
           <FeatureCard
             href="#"
             iconSrc="/HasnurChat_Icon.png"
@@ -113,7 +112,6 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
           All Files
         </h2>
 
-        {/* Render TabNavigation hanya untuk role "KMI" */}
         {userRole === "KMI" && (
           <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
         )}
@@ -139,13 +137,11 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
         {/* Main Content */}
         {activeTab === "overview" ? (
           viewMode === "grid" ? (
-            <div>
-              <KnowledgeList
-                searchQuery={searchQuery}
-                selectedField={selectedFields}
-                selectedType={selectedType}
-              />
-            </div>
+            <KnowledgeList
+              searchQuery={searchQuery}
+              selectedField={selectedFields}
+              selectedType={selectedType}
+            />
           ) : (
             <div className="flex items-center justify-center w-full h-[200px]">
               <p className="text-gray-400 text-sm font-figtree">
