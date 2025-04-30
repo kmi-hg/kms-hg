@@ -65,7 +65,7 @@ export default function SMEClient({ role }: SMEClientProps) {
   useEffect(() => {
     setSelectedAreaOfExpertise("Area of Expertise");
     setSelectedSBU("SBU");
-  }, []);
+  }, [setSelectedAreaOfExpertise, setSelectedSBU]);
 
   useEffect(() => {
     const fetchSMEs = async () => {
@@ -417,6 +417,6 @@ export default function SMEClient({ role }: SMEClientProps) {
           setIsDetailOpen(false);
         }}
       />
-    </div> 
+    </div>
   );
 }

@@ -33,7 +33,7 @@ const AudioPlayer: React.FC = () => {
       audioRef.current.src = track.src;
       audioRef.current.load();
     }
-  }, [track?.src]);
+  }, [track]);
 
   const handlePlayPause = () => {
     if (!audioRef.current) return;

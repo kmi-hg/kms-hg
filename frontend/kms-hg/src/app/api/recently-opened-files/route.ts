@@ -45,14 +45,7 @@ export async function GET(req: Request) {
         size: knowledgeFile?.size,
       };
     });
-
-    // Sort by the 'openedAt' field in descending order
-    const sortedFiles = enrichedRecentlyOpenedFiles.sort(
-      (a: any, b: any) =>
-        new Date(b.openedAt).getTime() - new Date(a.openedAt).getTime()
-    );
-
-    return NextResponse.json(sortedFiles);
+    return NextResponse.json(enrichedRecentlyOpenedFiles);
   } catch (error) {
     console.error("Error fetching recently opened files data:", error);
     return NextResponse.json(

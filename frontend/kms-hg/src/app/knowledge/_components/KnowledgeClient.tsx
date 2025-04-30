@@ -48,14 +48,37 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
   } = useFilter();
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [recentlyOpenedFiles, setRecentlyOpenedFiles] = useState<any[]>([]);
 
-  // Make sure role is valid
+  const userRole = role;
+  const userId = session?.user?.id;
+
+  useEffect(() => {
+    if (!userId) return;
+
+    fetch(`/api/recently-opened-files?userId=${userId}`)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        const sortedFiles = data.sort(
+          (a: any, b: any) =>
+            new Date(b.openedAt).getTime() - new Date(a.openedAt).getTime()
+        );
+        setRecentlyOpenedFiles(sortedFiles);
+      })
+      .catch((error) => {
+        console.error("Error fetching recently opened files:", error);
+        setRecentlyOpenedFiles([]);
+      });
+  }, [userId]);
+
   if (!role) {
     return <div>Error: Role tidak ditemukan</div>;
   }
-
-  const userRole = role; // Ensure userRole is available and valid
-  const userId = session?.user?.id; // Extract userId from session or set it to undefined
 
   const FieldsOptions = [
     "Corsec/Corplan",
@@ -70,32 +93,6 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
     "Marketing & Sales",
   ];
   const TypeOptions = ["PDF", "MP3"];
-
-  const [recentlyOpenedFiles, setRecentlyOpenedFiles] = useState<any[]>([]);
-
-
-  useEffect(() => {
-    if (userId) {
-      fetch(`/api/recently-opened-files?userId=${userId}`)
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error(`HTTP error! status: ${res.status}`);
-          }
-          return res.json();
-        })
-        .then((data) => {
-          const sortedFiles = data.sort(
-            (a: any, b: any) =>
-              new Date(b.openedAt).getTime() - new Date(a.openedAt).getTime()
-          );
-          setRecentlyOpenedFiles(sortedFiles);
-        })
-        .catch((error) => {
-          console.error("Error fetching recently opened files:", error);
-          setRecentlyOpenedFiles([]); // Set an empty array if there's an error
-        });
-    }
-  }, [userId]);
 
   return (
     <div className="px-[80px] pt-[16px]">
