@@ -5,6 +5,7 @@ import { KnowledgeItem } from "@/types";
 import Modal from "@/components/knowledge-page/KnowledgeModal";
 import { FaSortUp, FaSortDown } from "react-icons/fa";
 import DeleteConfirmationModal from "../knowledge-page/DeleteConfirmationModal";
+import Image from "next/image"; // Importing the Next.js Image component
 
 type SortColumn = "name" | "clickRate" | null;
 type SortDirection = "asc" | "desc";
@@ -213,10 +214,12 @@ export default function KnowledgeTable({
                   }}
                   className="w-[32px] h-[24px] border border-[#EAECEB] rounded-[4px] flex items-center justify-center"
                 >
-                  <img
+                  <Image
                     src="/edit_icon.png"
                     alt="Edit"
                     className="h-[15px] w-[15px]"
+                    width={15}
+                    height={15}
                   />
                 </button>
                 <button
@@ -226,10 +229,12 @@ export default function KnowledgeTable({
                   }}
                   className="w-[32px] h-[24px] border border-[#EAECEB] rounded-[4px] flex items-center justify-center"
                 >
-                  <img
+                  <Image
                     src="/delete_icon.png"
                     alt="Delete"
                     className="h-[15px] w-[13px]"
+                    width={13}
+                    height={15}
                   />
                 </button>
               </td>

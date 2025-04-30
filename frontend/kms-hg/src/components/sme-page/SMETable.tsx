@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { SMEItem } from "@/types";
 import { FaSortUp, FaSortDown } from "react-icons/fa";
 import DeleteConfirmationModal from "./DeleteConfirmationModal"; // Import the modal
+import Image from "next/image"; // Importing Next.js Image component
 
 type SMETableProps = {
   data: SMEItem[];
@@ -136,20 +137,24 @@ export default function SMETable({
                   onClick={() => onEdit(sme)}
                   className="border border-[#EAECEB] p-1 rounded-[4px] hover:bg-gray-50 w-full flex justify-center"
                 >
-                  <img
+                  <Image
                     src="/edit_icon.png"
                     alt="Edit"
                     className="h-[12px] w-[12px]"
+                    width={12}
+                    height={12}
                   />
                 </button>
                 <button
                   onClick={() => handleDeleteConfirmation(sme)} // Open modal
                   className="border border-[#EAECEB] p-1 rounded-[4px] hover:bg-gray-50 w-full flex justify-center"
                 >
-                  <img
+                  <Image
                     src="/delete_icon.png"
                     alt="Delete"
                     className="h-[12px] w-[11px]"
+                    width={11}
+                    height={12}
                   />
                 </button>
               </td>

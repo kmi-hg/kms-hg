@@ -2,7 +2,6 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { supabase } from "@/lib/supabaseClient";
-import { v4 as uuidv4 } from "uuid"; // For generating UUIDs
 
 declare module "next-auth" {
   /**

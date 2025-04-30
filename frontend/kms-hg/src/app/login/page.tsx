@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { signInAction } from "./loginAction";
 import { Eye, EyeOff } from "lucide-react"; // optional: if using icon library
+import Image from "next/image"; // Importing the Next.js Image component
 
 const SignInPage = () => {
   const [error, setError] = useState<string>("");
@@ -10,10 +11,12 @@ const SignInPage = () => {
   return (
     <div className="min-h-screen flex bg-gray-50">
       <div className="absolute p-[32px]">
-        <img
+        <Image
           src="/Logo_Hasnur_Group.png"
           alt="Hasnur Group Logo"
           className="h-10 w-auto"
+          width={40} // You can adjust the width and height as per your needs
+          height={40}
         />
       </div>
       {/* Column 1: Sign In Form (1/3) */}
@@ -90,10 +93,12 @@ const SignInPage = () => {
 
       {/* Column 2: Image (2/3) */}
       <div className="basis-2/3 flex items-center justify-center p-3">
-        <img
+        <Image
           src="/cover_signin.png"
           alt="Cover Sign In"
           className="w-full h-full object-cover rounded-[24px]"
+          width={600} // Adjust width and height accordingly
+          height={400}
         />
       </div>
     </div>

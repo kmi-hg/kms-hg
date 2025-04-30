@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image"; // Importing the Next.js Image component
 
 type DeleteConfirmationModalProps = {
   isOpen: boolean;
@@ -19,10 +20,12 @@ const DeleteConfirmationModal = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="fixed inset-0 bg-black opacity-50 absolute" />
       <div className="relative bg-white p-[24px] rounded-[16px] shadow-lg w-[400px] h-fit z-50">
-        <img
+        <Image
           src="/delete_logo.png"
           alt="Delete"
           className="h-[48px] w-[48px]"
+          width={48} // You can specify the width and height explicitly for Image component
+          height={48}
         />
         <br />
         <h2 className="text-black text-[18px] font-semibold">

@@ -1,5 +1,5 @@
-// components/sme-page/SMEDetailModal.tsx
 import React from "react";
+import Image from "next/image"; // Importing the Next.js Image component
 
 interface SME {
   name: string;
@@ -38,10 +38,12 @@ export default function SMEDetailModal({
         </button>
         <div className="flex gap-6">
           <div className="flex-shrink-0 w-[300px] h-[300px] border border-[#9C9C9C] rounded-full overflow-hidden">
-            <img
+            <Image
               src={sme.profile_url}
               alt={sme.name}
               className="w-full h-full object-cover"
+              width={300} // Added width and height for Next.js Image optimization
+              height={300}
             />
           </div>
           <div className="flex flex-col justify-start gap-[20px]">

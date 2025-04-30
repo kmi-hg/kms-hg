@@ -1,3 +1,5 @@
+import Image from "next/image"; // Importing the Next.js Image component
+
 interface SMECardProps {
   name: string;
   email: string;
@@ -15,10 +17,12 @@ export default function SMECard({
     <div className="max-w-[325px] flex flex-col justify-between h-[190px] rounded-[10px] border border-[#d9d9d9] p-[20px]">
       <div className="flex justify-between items-start">
         <div className="h-[80px] w-[80px] rounded-full overflow-hidden bg-gray-200">
-          <img
+          <Image
             src={profile_url}
             alt={`${name}'s profile`}
             className="h-full w-full object-cover"
+            width={80} // Added width and height for Next.js Image optimization
+            height={80}
           />
         </div>
         <div className="h-[18px] w-auto px-2 rounded-[10px] border border-[#3A40D4] text-[#3A40D4] text-[10px] flex justify-center items-center">
