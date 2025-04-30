@@ -1,0 +1,63 @@
+import { db } from "../db";
+import { recentlyOpenedFiles } from "@/db/schema/recently-opened-files";
+import { knowledgeTable } from "@/db/schema/knowledge";
+import { NextResponse } from "next/server";
+import { eq } from "drizzle-orm";
+
+export async function GET(req: Request) {
+  try {
+    // Extract the userId from the query parameters
+    const url = new URL(req.url);
+    const userId = url.searchParams.get("userId");
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: "User ID is required" },
+        { status: 400 }
+      );
+    }
+
+    // Fetch the recently opened files data for the specified user
+    const recentlyOpenedFilesData = await db
+      .select()
+      .from(recentlyOpenedFiles)
+      .where(eq(recentlyOpenedFiles.usersId, userId)); // Filter by userId
+
+    // Fetch the knowledge table data based on fileId
+    const knowledgeData = await db
+      .select({
+        id: knowledgeTable.id,
+        name: knowledgeTable.name,
+        path: knowledgeTable.path,
+        thumbnailPath: knowledgeTable.thumbnailPath,
+        size: knowledgeTable.size,
+      })
+      .from(knowledgeTable);
+
+    // Map over the recently opened files and add knowledge data to each
+    const enrichedRecentlyOpenedFiles = recentlyOpenedFilesData.map((file) => {
+      const knowledgeFile = knowledgeData.find((k) => k.id === file.fileId);
+      return {
+        ...file,
+        fileName: knowledgeFile?.name,
+        fileUrl: knowledgeFile?.path,
+        thumbnailPath: knowledgeFile?.thumbnailPath,
+        size: knowledgeFile?.size,
+      };
+    });
+
+    // Sort by the 'openedAt' field in descending order
+    const sortedFiles = enrichedRecentlyOpenedFiles.sort(
+      (a: any, b: any) =>
+        new Date(b.openedAt).getTime() - new Date(a.openedAt).getTime()
+    );
+
+    return NextResponse.json(sortedFiles);
+  } catch (error) {
+    console.error("Error fetching recently opened files data:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch recently opened files data." },
+      { status: 500 }
+    );
+  }
+}

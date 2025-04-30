@@ -4,10 +4,12 @@ import { KnowledgeItem } from "@/types";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
+// This function handles the double-click event
 export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
   const router = useRouter();
 
   const handleDoubleClick = () => {
+    // Prepare the track object for MP3 files
     if (item.path && item.path.toLowerCase().trim().endsWith(".mp3")) {
       const track = {
         title: item.name,
@@ -27,6 +29,21 @@ export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
     } else if (item.path) {
       window.open(item.path, "_blank");
     }
+
+    // Log the file in the recently opened files
+    fetch("/api/recently-opened-files", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        fileId: item.id,
+        fileName: item.name,
+        fileUrl: item.path,
+      }),
+    }).catch((error) => {
+      console.error("Error adding to recently opened:", error);
+    });
   };
 
   return (

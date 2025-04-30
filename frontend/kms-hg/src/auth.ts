@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { supabase } from "@/lib/supabaseClient";
+import { v4 as uuidv4 } from "uuid"; // For generating UUIDs
 
 declare module "next-auth" {
   /**
@@ -11,12 +12,14 @@ declare module "next-auth" {
     user: {
       nrp: string;
       role: string;
+      id: string; // Adding the `id` field of type string (UUID)
     };
   }
 
   interface User {
     nrp: string;
     role: string;
+    id: string; // Adding the `id` field of type string (UUID)
   }
 }
 
@@ -26,9 +29,9 @@ import { JWT } from "next-auth/jwt";
 declare module "next-auth/jwt" {
   /** Returned by the `jwt` callback and `auth`, when using JWT sessions */
   interface JWT {
-    /** OpenID ID Token */
     nrp: string;
     role: string;
+    id: string; // Adding the `id` field of type string (UUID)
   }
 }
 
@@ -89,6 +92,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.name = user.name;
         token.nrp = user.nrp;
         token.role = user.role;
+        token.id = user.id; // Add user id (UUID) to the token
       }
       return token;
     },
@@ -96,6 +100,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       session.user.name = token.name;
       session.user.nrp = token.nrp;
       session.user.role = token.role;
+      session.user.id = token.id; // Assign the user id (UUID) from token to session
       return session;
     },
   },
