@@ -113,11 +113,15 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
         <h2 className="text-[24px] mb-[30px] font-semibold font-figtree text-black">
           Recently Opened
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[17px]">
-          {recentlyOpenedFiles.slice(0, 4).map((file) => (
-            <RecentlyOpenedCard key={file.fileId} file={file} />
-          ))}
-        </div>
+        {recentlyOpenedFiles.length === 0 ? (
+          <p className="text-gray-500">You haven't opened any files</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[17px]">
+            {recentlyOpenedFiles.slice(0, 4).map((file) => (
+              <RecentlyOpenedCard key={file.fileId} file={file} />
+            ))}
+          </div>
+        )}
       </section>
 
       <section className="mt-[30px]">
