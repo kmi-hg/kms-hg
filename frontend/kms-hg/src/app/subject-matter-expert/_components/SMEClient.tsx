@@ -45,6 +45,8 @@ export default function SMEClient({ role }: SMEClientProps) {
   const [successMessage, setSuccessMessage] = useState(""); // Success message
   const [isProfileRemoved, setIsProfileRemoved] = useState(false);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const DEFAULT_PROFILE_URL = "/default-profile-picture.png";
 
   const AreaOfExpertiseOptions = [
@@ -117,6 +119,8 @@ export default function SMEClient({ role }: SMEClientProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    setIsLoading(true);
+
     if (
       (profilePicture && !isEditMode) ||
       !name.trim() ||
@@ -159,7 +163,7 @@ export default function SMEClient({ role }: SMEClientProps) {
         setSuccessMessage(
           isEditMode ? "SME updated successfully!" : "SME added successfully!"
         );
-        setIsSuccessModalOpen(true); // Open SuccessModal
+        setIsSuccessModalOpen(true);
         resetForm();
         const updated = await fetch("/api/expert");
         const data = await updated.json();
@@ -171,6 +175,9 @@ export default function SMEClient({ role }: SMEClientProps) {
     } catch (err) {
       console.error(err);
       alert("Something went wrong!");
+    } finally {
+      // Set loading state ke false setelah proses fetch selesai
+      setIsLoading(false);
     }
   };
 
@@ -378,8 +385,15 @@ export default function SMEClient({ role }: SMEClientProps) {
                     <button
                       type="submit"
                       className="bg-[#3A40D4] text-white px-6 py-2 rounded-[8px] text-[16px] transition w-[115px] h-[41px]"
+                      disabled={isLoading} // Menonaktifkan tombol saat loading
                     >
-                      {isEditMode ? "Update" : "Add"}
+                      {isLoading
+                        ? isEditMode
+                          ? "Updating..."
+                          : "Uploading..."
+                        : isEditMode
+                        ? "Update"
+                        : "Add"}
                     </button>
                   </div>
                 </div>
