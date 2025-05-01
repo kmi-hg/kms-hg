@@ -15,6 +15,7 @@ import Image from "next/image";
 import KnowledgeTable from "../../../components/knowledge-page/KnowledgeTable";
 import SearchFilterBar from "../../../components/knowledge-page/SearchFilterBar";
 import { useSession } from "next-auth/react";
+import { KnowledgeItem } from "@/types"; // Importing KnowledgeItem type
 
 type KnowledgeClientProps = {
   role: string;
@@ -59,10 +60,13 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
   const [recentlyOpenedFiles, setRecentlyOpenedFiles] = useState<
     RecentlyOpenedFile[]
   >([]);
+  const [, setKnowledgeItems] = useState<KnowledgeItem[]>([]); // Define knowledgeItems state
+  const [, setLoading] = useState(true); // Define loading state
 
   const userRole = role;
   const userId = session?.user?.id;
 
+  // Fetch knowledge items and their click rate when component mounts or when userId changes
   useEffect(() => {
     if (!userId) return;
 
@@ -85,6 +89,43 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
         setRecentlyOpenedFiles([]);
       });
   }, [userId]);
+
+  // Fetch knowledge items only once when the component mounts
+  useEffect(() => {
+    const fetchKnowledge = async () => {
+      try {
+        const res = await fetch("/api/knowledge");
+        const data: KnowledgeItem[] = await res.json();
+
+        // Fetch the click rates for each document
+        for (let i = 0; i < data.length; i++) {
+          const resViews = await fetch(
+            `/api/document-views?documentId=${data[i].id}`
+          );
+
+          const text = await resViews.text();
+          if (!text) {
+            data[i].clickRate = 0; // Default to 0 if no views data
+          } else {
+            try {
+              const viewsData = JSON.parse(text);
+              data[i].clickRate = viewsData.length || 0; // Set clickRate based on the number of views
+            } catch {
+              data[i].clickRate = 0; // Default to 0 if JSON parsing fails
+            }
+          }
+        }
+
+        setKnowledgeItems(data);
+      } catch (err) {
+        console.error("Failed to fetch knowledge items:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchKnowledge();
+  }, []); // Empty dependency array to fetch only once on component mount
 
   if (!role) {
     return <div>Error: Role tidak ditemukan</div>;
@@ -135,12 +176,6 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
             title="Subject Matter Expert"
             description="Ask the Expert"
           />
-          {/* <FeatureCard
-            href="#"
-            iconSrc="/HasnurChat_Icon.png"
-            title="Hasnur Chat"
-            description="Ask the AI"
-          /> */}
         </div>
       </section>
 
