@@ -37,15 +37,21 @@ export default function KnowledgeList({
       });
   }, []);
 
-  const filteredData = data.filter((item) => {
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesField =
-      selectedField === "Fields" || item.field === selectedField;
-    const matchesType =
-      selectedType === "Type" || item.type.toUpperCase() === selectedType.toUpperCase();
+  const filteredData = data
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .filter((item) => {
+      const matchesSearch = item.name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+      const matchesField =
+        selectedField === "Fields" || item.field === selectedField;
+      const matchesType =
+        selectedType === "Type" ||
+        item.type.toUpperCase() === selectedType.toUpperCase();
 
-    return matchesSearch && matchesField && matchesType;
-  });
+      return matchesSearch && matchesField && matchesType;
+    });
 
   if (loading) {
     return (

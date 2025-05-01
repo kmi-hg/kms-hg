@@ -16,9 +16,9 @@ export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
       console.error("User is not logged in");
       return;
     }
-  
+
     const userId = session.user.id; // Get the logged-in user's ID from the session
-  
+
     // Prepare the track object for MP3 files
     if (item.path && item.path.toLowerCase().trim().endsWith(".mp3")) {
       const track = {
@@ -28,18 +28,18 @@ export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
         thumbnail: item.thumbnailPath || "cth-knowledge.png",
       };
       localStorage.setItem("selectedTrack", JSON.stringify(track));
-  
+
       const slug = item.name
         .toLowerCase()
         .replace(/\.[^/.]+$/, "")
         .replace(/\s+/g, "-")
         .replace(/[^a-z0-9\-]/g, "");
-  
+
       router.push(`/knowledge/${slug}`);
     } else if (item.path) {
       window.open(item.path, "_blank");
     }
-  
+
     // Log the file in the recently opened files (send `fileId` and `userId`)
     fetch("/api/recently-opened-files", {
       method: "POST",
@@ -53,7 +53,7 @@ export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
     }).catch((error) => {
       console.error("Error adding to recently opened:", error);
     });
-  
+
     // Insert the document view into the 'document_views' table
     fetch("/api/document-views", {
       method: "POST",
@@ -67,7 +67,7 @@ export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
     }).catch((error) => {
       console.error("Error adding document view:", error);
     });
-  };  
+  };
   return (
     <div
       onDoubleClick={handleDoubleClick}
@@ -87,7 +87,9 @@ export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
 
       {/* File Info */}
       <div className="flex items-center mr-[8px] mb-[20px] mt-[10px] px-[18px] gap-2">
-        <div className="w-[17px] h-[14px] bg-[#57A5A0]"></div>
+        <div className="px-[6px] py-[2px] bg-[#57A5A0] text-white text-[10px] font-semibold rounded">
+          {item.path.split(".").pop()?.toUpperCase()}
+        </div>
         <p className="text-[14px] font-figtree text-gray-500">
           {item.field} • {item.size.toFixed(2)} MB
         </p>
@@ -120,7 +122,7 @@ export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
             year: "2-digit",
           })}
         </p>
-        <div className="w-[17px] h-[14px] bg-[#57A5A0]"></div>
+        {/* <div className="w-[17px] h-[14px] bg-[#57A5A0]"></div> */}
       </div>
     </div>
   );
