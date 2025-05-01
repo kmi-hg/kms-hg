@@ -50,6 +50,7 @@ const Modal = ({
   const [successMessage, setSuccessMessage] = useState(""); // Manage success message
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false); // Manage upload in progress state
 
   useEffect(() => {
     if (initialData) {
@@ -109,6 +110,9 @@ const Modal = ({
       return;
     }
 
+    // Set uploading state to true
+    setIsUploading(true);
+
     const formData = new FormData();
     formData.append("name", documentName);
     formData.append("field", field);
@@ -137,6 +141,9 @@ const Modal = ({
         body: formData,
       });
 
+      // Reset uploading state after fetching
+      setIsUploading(false);
+
       if (res.ok) {
         // Reset form fields
         setDocumentName("");
@@ -145,11 +152,11 @@ const Modal = ({
         setUploadedFile(null);
         setThumbnailFile(null);
 
-        // Open SuccessModal, but do not close KnowledgeModal yet
+        // Open SuccessModal
         setSuccessMessage(
           isEditMode ? "Update successful!" : "Upload successful!"
         );
-        setIsSuccessModalOpen(true); // Open SuccessModal
+        setIsSuccessModalOpen(true);
       } else {
         const err = await res.json();
         alert(`Upload failed: ${err.error || "unknown error"}`);
@@ -157,6 +164,7 @@ const Modal = ({
     } catch (error) {
       console.error("Upload error:", error);
       alert("Unexpected error occurred.");
+      setIsUploading(false); // Ensure uploading state is false if there's an error
     }
   };
 
@@ -300,8 +308,9 @@ const Modal = ({
           <button
             onClick={handleUpload}
             className="w-[115px] h-[41px] bg-[#3D5AFE] text-white px-6 py-2 rounded-[8px] text-[16px] font-semibold hover:bg-[#2c47e3] transition-all"
+            disabled={isUploading} // Disable the button while uploading
           >
-            {isEditMode ? "Update" : "Upload"}
+            {isUploading ? "Uploading..." : isEditMode ? "Update" : "Upload"}
           </button>
         </div>
       </div>
