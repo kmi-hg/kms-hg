@@ -105,61 +105,69 @@ export default function SMETable({
           </tr>
         </thead>
         <tbody>
-          {sortedData.map((sme, index) => (
-            <tr
-              key={sme.id}
-              className={index % 2 === 0 ? "bg-[#FCFBFC]" : "bg-white"}
-            >
-              <td className="relative px-4 py-3 truncate max-w-[250px] text-[#85878B] group cursor-pointer">
-                {sme.name}
-                <div className="absolute z-50 hidden group-hover:block bg-white text-[#222] text-sm px-3 py-2 rounded-md shadow-lg border border-gray-200 w-max max-w-[300px] left-1/2 -translate-x-1/2 top-full mt-1">
-                  {sme.name}
-                </div>
-              </td>
-              <td className="px-4 py-3 text-left text-[#85878B]">
-                {sme.email}
-              </td>
-              <td className="px-4 py-3 text-center">
-                <span className="bg-gray-100 text-[#85878B] px-2 py-1 rounded text-[14px]">
-                  {sme.area_of_expertise}
-                </span>
-              </td>
-              <td className="px-4 py-3 text-center">
-                <span className="bg-gray-100 text-[#85878B] px-2 py-1 rounded text-[14px]">
-                  {sme.sbu}
-                </span>
-              </td>
-              <td className="px-4 py-3 text-center text-[#85878B]">
-                {new Date(sme.id).toLocaleDateString("id-ID")}
-              </td>
-              <td className="px-4 py-3 flex gap-2 justify-center">
-                <button
-                  onClick={() => onEdit(sme)}
-                  className="border border-[#EAECEB] p-1 rounded-[4px] hover:bg-gray-50 w-full flex justify-center"
-                >
-                  <Image
-                    src="/edit_icon.png"
-                    alt="Edit"
-                    className="h-[12px] w-[12px]"
-                    width={12}
-                    height={12}
-                  />
-                </button>
-                <button
-                  onClick={() => handleDeleteConfirmation(sme)} // Open modal
-                  className="border border-[#EAECEB] p-1 rounded-[4px] hover:bg-gray-50 w-full flex justify-center"
-                >
-                  <Image
-                    src="/delete_icon.png"
-                    alt="Delete"
-                    className="h-[12px] w-[11px]"
-                    width={11}
-                    height={12}
-                  />
-                </button>
+          {sortedData.length === 0 ? (
+            <tr>
+              <td colSpan={6} className="text-center py-3 text-gray-500">
+                No expert added
               </td>
             </tr>
-          ))}
+          ) : (
+            sortedData.map((sme, index) => (
+              <tr
+                key={sme.id}
+                className={index % 2 === 0 ? "bg-[#FCFBFC]" : "bg-white"}
+              >
+                <td className="relative px-4 py-3 truncate max-w-[250px] text-[#85878B] group cursor-pointer">
+                  {sme.name}
+                  <div className="absolute z-50 hidden group-hover:block bg-white text-[#222] text-sm px-3 py-2 rounded-md shadow-lg border border-gray-200 w-max max-w-[300px] left-1/2 -translate-x-1/2 top-full mt-1">
+                    {sme.name}
+                  </div>
+                </td>
+                <td className="px-4 py-3 text-left text-[#85878B]">
+                  {sme.email}
+                </td>
+                <td className="px-4 py-3 text-center">
+                  <span className="bg-gray-100 text-[#85878B] px-2 py-1 rounded text-[14px]">
+                    {sme.area_of_expertise}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-center">
+                  <span className="bg-gray-100 text-[#85878B] px-2 py-1 rounded text-[14px]">
+                    {sme.sbu}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-center text-[#85878B]">
+                  {new Date(sme.id).toLocaleDateString("id-ID")}
+                </td>
+                <td className="px-4 py-3 flex gap-2 justify-center">
+                  <button
+                    onClick={() => onEdit(sme)}
+                    className="border border-[#EAECEB] p-1 rounded-[4px] hover:bg-gray-50 w-full flex justify-center"
+                  >
+                    <Image
+                      src="/edit_icon.png"
+                      alt="Edit"
+                      className="h-[12px] w-[12px]"
+                      width={12}
+                      height={12}
+                    />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteConfirmation(sme)} // Open modal
+                    className="border border-[#EAECEB] p-1 rounded-[4px] hover:bg-gray-50 w-full flex justify-center"
+                  >
+                    <Image
+                      src="/delete_icon.png"
+                      alt="Delete"
+                      className="h-[12px] w-[11px]"
+                      width={11}
+                      height={12}
+                    />
+                  </button>
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
 

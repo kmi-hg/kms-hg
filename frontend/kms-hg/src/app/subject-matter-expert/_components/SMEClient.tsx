@@ -221,25 +221,31 @@ export default function SMEClient({ role }: SMEClientProps) {
       <br />
 
       {activeTab === "overview" ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[17px]">
-          {filteredSMEs.map((sme) => (
-            <div
-              key={sme.id}
-              onClick={() => {
-                setSelectedSME(sme);
-                setIsDetailOpen(true);
-              }}
-              className="cursor-pointer"
-            >
-              <SMECard
-                name={sme.name}
-                email={sme.email}
-                profile_url={sme.profile_url}
-                area_of_expertise={sme.area_of_expertise}
-              />
-            </div>
-          ))}
-        </div>
+        filteredSMEs.length === 0 ? (
+          <div className="flex items-center justify-center h-[300px]">
+            <p className="text-center text-gray-500">No expert added</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[17px]">
+            {filteredSMEs.map((sme) => (
+              <div
+                key={sme.id}
+                onClick={() => {
+                  setSelectedSME(sme);
+                  setIsDetailOpen(true);
+                }}
+                className="cursor-pointer"
+              >
+                <SMECard
+                  name={sme.name}
+                  email={sme.email}
+                  profile_url={sme.profile_url}
+                  area_of_expertise={sme.area_of_expertise}
+                />
+              </div>
+            ))}
+          </div>
+        )
       ) : (
         <>
           {/* Add/Edit SME Form */}

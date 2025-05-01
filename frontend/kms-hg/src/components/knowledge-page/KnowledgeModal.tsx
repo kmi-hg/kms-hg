@@ -38,8 +38,6 @@ const Modal = ({
     "Marketing & Sales",
   ];
 
-  const router = useRouter();
-
   const [selectedCategory, setSelectedCategory] = useState("");
   const [documentName, setDocumentName] = useState("");
   const [field, setField] = useState("");
