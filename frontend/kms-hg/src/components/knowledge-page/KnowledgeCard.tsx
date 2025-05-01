@@ -16,9 +16,9 @@ export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
       console.error("User is not logged in");
       return;
     }
-
+  
     const userId = session.user.id; // Get the logged-in user's ID from the session
-
+  
     // Prepare the track object for MP3 files
     if (item.path && item.path.toLowerCase().trim().endsWith(".mp3")) {
       const track = {
@@ -28,18 +28,18 @@ export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
         thumbnail: item.thumbnailPath || "cth-knowledge.png",
       };
       localStorage.setItem("selectedTrack", JSON.stringify(track));
-
+  
       const slug = item.name
         .toLowerCase()
         .replace(/\.[^/.]+$/, "")
         .replace(/\s+/g, "-")
         .replace(/[^a-z0-9\-]/g, "");
-
+  
       router.push(`/knowledge/${slug}`);
     } else if (item.path) {
       window.open(item.path, "_blank");
     }
-
+  
     // Log the file in the recently opened files (send `fileId` and `userId`)
     fetch("/api/recently-opened-files", {
       method: "POST",
@@ -53,7 +53,21 @@ export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
     }).catch((error) => {
       console.error("Error adding to recently opened:", error);
     });
-  };
+  
+    // Insert the document view into the 'document_views' table
+    fetch("/api/document-views", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: userId,
+        documentId: item.id,
+      }),
+    }).catch((error) => {
+      console.error("Error adding document view:", error);
+    });
+  };  
   return (
     <div
       onDoubleClick={handleDoubleClick}

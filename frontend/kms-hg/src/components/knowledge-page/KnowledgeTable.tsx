@@ -53,6 +53,63 @@ export default function KnowledgeTable({
     fetchKnowledge();
   }, []);
 
+  useEffect(() => {
+    const fetchKnowledge = async () => {
+      try {
+        const res = await fetch("/api/knowledge");
+        let data: KnowledgeItem[] = await res.json();
+
+        // Fetch the click rates for each document
+        for (let i = 0; i < data.length; i++) {
+          const resViews = await fetch(
+            `/api/document-views?documentId=${data[i].id}`
+          );
+
+          // Get the response text and parse it
+          const text = await resViews.text();
+          console.log("Response Text:", text);
+
+          // Check if the response is valid and parseable
+          if (!text) {
+            console.log(`No views data for documentId ${data[i].id}`);
+            data[i].clickRate = 0; // Default to 0 if no views data
+          } else {
+            try {
+              const viewsData = JSON.parse(text); // Attempt to parse the response
+
+              // Ensure clickRate is set to 0 if no views are found
+              if (viewsData && Array.isArray(viewsData)) {
+                data[i].clickRate = viewsData.length; // Set clickRate based on the number of views
+              } else {
+                data[i].clickRate = 0; // Default to 0 if viewsData is not a valid array
+              }
+            } catch (error) {
+              console.error(
+                `Failed to parse views data for documentId ${data[i].id}:`,
+                error
+              );
+              data[i].clickRate = 0; // Default to 0 if JSON parsing fails
+            }
+          }
+        }
+
+        // Sort by upload date
+        data = data.sort(
+          (a, b) =>
+            new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
+        );
+
+        setKnowledgeItems(data);
+      } catch (err) {
+        console.error("Failed to fetch knowledge items:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchKnowledge();
+  }, []);
+
   const sortData = (column: SortColumn) => {
     let direction: SortDirection = "asc";
 
@@ -73,8 +130,9 @@ export default function KnowledgeTable({
       }
 
       if (column === "clickRate") {
-        const rateA = 24; // Dummy rate, replace if actual rate is available
-        const rateB = 24;
+        // Use actual clickRate values from knowledgeItems
+        const rateA = a.clickRate ?? 0; // Default to 0 if clickRate is undefined
+        const rateB = b.clickRate ?? 0; // Default to 0 if clickRate is undefined
         return direction === "asc" ? rateA - rateB : rateB - rateA;
       }
 
@@ -196,7 +254,10 @@ export default function KnowledgeTable({
                   {doc.field}
                 </span>
               </td>
-              <td className="text-center px-4 py-3 text-[#85878B]">24</td>
+              <td className="text-center px-4 py-3 text-[#85878B]">
+                {doc.clickRate ?? 0}{" "}
+                {/* Render the clickRate or 0 if it's not available */}
+              </td>
               <td className="px-4 py-3 text-[#85878B]">
                 {new Date(doc.uploadedAt).toLocaleString("id-ID", {
                   day: "2-digit",
