@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import SuccessModal from "./SuccessModal"; // Import SuccessModal
 
 const Modal = ({
   isOpen,
@@ -44,6 +45,9 @@ const Modal = ({
   const [field, setField] = useState("");
   const [uploadedFile, setUploadedFile] = useState<File | null>(file);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false); // Manage success modal state
+  const [successMessage, setSuccessMessage] = useState(""); // Manage success message
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -104,52 +108,48 @@ const Modal = ({
       alert("Please fill all required fields.");
       return;
     }
-  
+
     const formData = new FormData();
     formData.append("name", documentName);
     formData.append("field", field);
     formData.append("tags", selectedCategory);
-  
+
     if (uploadedFile) {
       formData.append("file", uploadedFile);
     }
-  
+
     if (uploadedFile?.type === "audio/mpeg" && thumbnailFile) {
       formData.append("thumbnail", thumbnailFile);
     }
-  
+
     let method = "POST";
-  
+
     if (isEditMode && initialData) {
       formData.append("id", initialData.id.toString());
       formData.append("type", initialData.type);
       formData.append("oldPath", initialData.path);
       method = "PUT";
     }
-  
+
     try {
       const res = await fetch("/api/knowledge", {
         method,
         body: formData,
       });
-  
+
       if (res.ok) {
-        alert(isEditMode ? "Update successful!" : "Upload successful!");
-  
         // Reset form fields
         setDocumentName("");
         setField("");
         setSelectedCategory("");
         setUploadedFile(null);
         setThumbnailFile(null);
-  
-        // Close modal first
-        closeModal();
-  
-        // Force revalidation from server (refresh page data)
-        setTimeout(() => {
-          router.refresh();
-        }, 100);
+
+        // Open SuccessModal, but do not close KnowledgeModal yet
+        setSuccessMessage(
+          isEditMode ? "Update successful!" : "Upload successful!"
+        );
+        setIsSuccessModalOpen(true); // Open SuccessModal
       } else {
         const err = await res.json();
         alert(`Upload failed: ${err.error || "unknown error"}`);
@@ -159,7 +159,6 @@ const Modal = ({
       alert("Unexpected error occurred.");
     }
   };
-  
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -306,6 +305,14 @@ const Modal = ({
           </button>
         </div>
       </div>
+
+      {/* Success Modal */}
+      <SuccessModal
+        isOpen={isSuccessModalOpen}
+        closeModal={() => setIsSuccessModalOpen(false)} // Close SuccessModal
+        closeKnowledgeModal={closeModal} // Close KnowledgeModal when SuccessModal is closed
+        message={successMessage}
+      />
     </div>
   );
 };
