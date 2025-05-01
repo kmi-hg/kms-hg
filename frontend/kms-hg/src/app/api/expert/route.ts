@@ -132,59 +132,91 @@ type AreaOfExpertise =
   | "Consumer"
   | "Investment";
 
-export async function PUT(req: Request) {
-  try {
-    const formData = await req.formData();
-
-    const id = Number(formData.get("id"));
-    const name = formData.get("name")?.toString();
-    const email = formData.get("email")?.toString();
-    const sbuRaw = formData.get("sbu")?.toString();
-    const bio = formData.get("bio")?.toString();
-    const areaRaw = formData.get("area_of_expertise")?.toString();
-
-    if (!id || !name || !email || !sbuRaw || !bio || !areaRaw) {
-      return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
+  export async function PUT(req: Request) {
+    try {
+      const formData = await req.formData();
+  
+      const id = Number(formData.get("id"));
+      const name = formData.get("name")?.toString();
+      const email = formData.get("email")?.toString();
+      const sbuRaw = formData.get("sbu")?.toString();
+      const bio = formData.get("bio")?.toString();
+      const areaRaw = formData.get("area_of_expertise")?.toString();
+      const file = formData.get("profile_picture") as File | null;
+  
+      if (!id || !name || !email || !sbuRaw || !bio || !areaRaw) {
+        return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
+      }
+  
+      // Validate SBU and Area of Expertise
+      const allowedValues: SBU[] = [
+        "Logistic",
+        "Argo Forestry",
+        "Energy",
+        "Technology & Services",
+        "Education",
+        "Consumer",
+        "Investment",
+      ];
+  
+      if (!allowedValues.includes(sbuRaw as SBU)) {
+        return NextResponse.json({ error: "Invalid SBU value." }, { status: 400 });
+      }
+  
+      if (!allowedValues.includes(areaRaw as AreaOfExpertise)) {
+        return NextResponse.json({ error: "Invalid Area of Expertise." }, { status: 400 });
+      }
+  
+      const sbu = sbuRaw as SBU;
+      const area_of_expertise = areaRaw as AreaOfExpertise;
+  
+      let profile_url = formData.get("current_profile_url")?.toString(); // Get current profile URL if no new image is provided
+  
+      // If a new profile picture is uploaded
+      if (file) {
+        // Upload the new profile image to Supabase
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+  
+        const fileExt = file.name.split(".").pop();
+        const fileName = `${uuidv4()}.${fileExt}`;
+        const bucket = "sme-profile";
+  
+        // Upload the new image
+        const { error: uploadError } = await supabase.storage
+          .from(bucket)
+          .upload(fileName, file, {
+            contentType: file.type,
+          });
+  
+        if (uploadError) {
+          return NextResponse.json({ error: uploadError.message }, { status: 500 });
+        }
+  
+        const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(fileName);
+        profile_url = publicUrlData?.publicUrl; // Update the profile URL
+      }
+  
+      // Update SME in the database
+      await db
+        .update(smeTable)
+        .set({
+          name,
+          email,
+          sbu,
+          bio,
+          area_of_expertise,
+          profile_url, // Only update profile_url if a new image is uploaded
+        })
+        .where(eq(smeTable.id, id));
+  
+      return NextResponse.json({ message: "SME updated successfully." });
+    } catch (error) {
+      console.error("SME update error:", error);
+      return NextResponse.json({ error: "Failed to update SME." }, { status: 500 });
     }
-
-    // Validate SBU and Area of Expertise
-    const allowedValues: SBU[] = [
-      "Logistic",
-      "Argo Forestry",
-      "Energy",
-      "Technology & Services",
-      "Education",
-      "Consumer",
-      "Investment",
-    ];
-
-    if (!allowedValues.includes(sbuRaw as SBU)) {
-      return NextResponse.json({ error: "Invalid SBU value." }, { status: 400 });
-    }
-
-    if (!allowedValues.includes(areaRaw as AreaOfExpertise)) {
-      return NextResponse.json({ error: "Invalid Area of Expertise." }, { status: 400 });
-    }
-
-    const sbu = sbuRaw as SBU;
-    const area_of_expertise = areaRaw as AreaOfExpertise;
-
-    await db
-      .update(smeTable)
-      .set({
-        name,
-        email,
-        sbu,
-        bio,
-        area_of_expertise,
-      })
-      .where(eq(smeTable.id, id));
-
-    return NextResponse.json({ message: "SME updated successfully." });
-  } catch (error) {
-    console.error("SME update error:", error);
-    return NextResponse.json({ error: "Failed to update SME." }, { status: 500 });
   }
-}
-
+  
 

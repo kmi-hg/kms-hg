@@ -8,6 +8,7 @@ import SearchFilterBar from "@/components/sme-page/SearchFilterBar";
 import { useFilter } from "@/hooks/useFilter";
 import SMETable from "@/components/sme-page/SMETable";
 import Image from "next/image";
+import SuccessModal from "@/components/sme-page/SuccessModal";
 
 interface SME {
   id: number;
@@ -39,6 +40,9 @@ export default function SMEClient({ role }: SMEClientProps) {
   const [bio, setBio] = useState("");
   const [isEditMode, setIsEditMode] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false); // Manage SuccessModal state
+  const [successMessage, setSuccessMessage] = useState(""); // Success message
 
   const AreaOfExpertiseOptions = [
     "Logistic",
@@ -109,16 +113,6 @@ export default function SMEClient({ role }: SMEClientProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log("Form values:", {
-      profilePicture,
-      name,
-      email,
-      sbu,
-      bio,
-      selectedExpertise,
-      isEditMode,
-    });
-
     if (
       (!profilePicture && !isEditMode) ||
       !name.trim() ||
@@ -134,6 +128,8 @@ export default function SMEClient({ role }: SMEClientProps) {
     const formData = new FormData();
     if (profilePicture) {
       formData.append("profile_picture", profilePicture);
+    } else if (selectedSME?.profile_url) {
+      formData.append("current_profile_url", selectedSME.profile_url); // Pass current profile URL if no new image
     }
     formData.append("name", name);
     formData.append("email", email);
@@ -153,12 +149,11 @@ export default function SMEClient({ role }: SMEClientProps) {
       });
 
       if (res.ok) {
-        alert(
+        setSuccessMessage(
           isEditMode ? "SME updated successfully!" : "SME added successfully!"
         );
+        setIsSuccessModalOpen(true); // Open SuccessModal
         resetForm();
-        setActiveTab("overview");
-
         const updated = await fetch("/api/expert");
         const data = await updated.json();
         setSmeList(data);
@@ -416,6 +411,12 @@ export default function SMEClient({ role }: SMEClientProps) {
           setSelectedSME(null);
           setIsDetailOpen(false);
         }}
+      />
+
+      <SuccessModal
+        isOpen={isSuccessModalOpen}
+        closeModal={() => setIsSuccessModalOpen(false)} // Close SuccessModal
+        message={successMessage} // Success message
       />
     </div>
   );
