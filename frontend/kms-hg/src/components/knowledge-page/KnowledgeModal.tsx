@@ -126,6 +126,11 @@ const Modal = ({
       formData.append("thumbnail", thumbnailFile);
     }
 
+    // Tambahkan ini juga saat EDIT dan ada thumbnail baru
+    if (isEditMode && initialData?.type === "mp3" && thumbnailFile) {
+      formData.append("thumbnail", thumbnailFile);
+    }
+
     let method = "POST";
 
     if (isEditMode && initialData) {
@@ -217,15 +222,20 @@ const Modal = ({
                   click to browse
                 </span>
               </p>
-              {uploadedFile && (
+              {uploadedFile ? (
                 <p className="mt-2 text-sm text-green-600 font-medium">
                   File selected: {uploadedFile.name}
                 </p>
-              )}
+              ) : isEditMode && initialData ? (
+                <p className="mt-2 text-sm text-blue-600 font-medium">
+                  Existing file: {initialData.name.split("/").pop()}
+                </p>
+              ) : null}
             </div>
           </div>
 
-          {uploadedFile?.type === "audio/mpeg" && (
+          {(uploadedFile?.type === "audio/mpeg" ||
+            (isEditMode && initialData?.type === "mp3")) && (
             <div className="mb-[30px]">
               <label className="text-[16px] font-semibold text-black mb-[10px] block">
                 Upload Thumbnail

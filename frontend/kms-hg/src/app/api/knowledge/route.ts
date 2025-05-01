@@ -157,6 +157,7 @@ export async function PUT(req: Request) {
   const type = formData.get("type") as "pdf" | "mp3";
   const oldPath = formData.get("oldPath")?.toString();
   const file = formData.get("file") as File | null;
+  const thumbnail = formData.get("thumbnail") as File | null;
 
   // Validasi input
   if (!id || !name || !field || !tags || !type || !oldPath) {
@@ -171,7 +172,8 @@ export async function PUT(req: Request) {
   }
 
   let path = oldPath;
-  let size;
+  let size: number | undefined;
+  let thumbnailPath: string | undefined;
 
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -210,6 +212,23 @@ export async function PUT(req: Request) {
     size = parseFloat((file.size / 1024 / 1024).toFixed(2));
   }
 
+  // Periksa jika thumbnail baru diunggah untuk MP3
+  if (type === "mp3" && thumbnail) {
+    const thumbName = `${uuidv4()}-${thumbnail.name}`;
+    const { error: thumbError } = await supabase.storage
+      .from("knowledge-thumbnails")
+      .upload(thumbName, thumbnail, { contentType: thumbnail.type });
+
+    if (thumbError) {
+      return NextResponse.json({ error: thumbError.message }, { status: 500 });
+    }
+
+    const { data: thumbUrlData } = supabase.storage
+      .from("knowledge-thumbnails")
+      .getPublicUrl(thumbName);
+    thumbnailPath = thumbUrlData?.publicUrl;
+  }
+
   // Update database record
   await db
     .update(knowledgeTable)
@@ -219,6 +238,7 @@ export async function PUT(req: Request) {
       tags,
       path,
       ...(size && { size }),
+      ...(thumbnailPath && { thumbnailPath }),
     })
     .where(eq(knowledgeTable.id, Number(id)));
 
