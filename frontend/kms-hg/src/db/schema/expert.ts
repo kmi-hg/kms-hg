@@ -19,5 +19,5 @@ export const smeTable = pgTable("sme_table", {
   sbu: sbuEnum("sbu").notNull(),
   bio: text("bio").notNull(),
   area_of_expertise: text("area_of_expertise").notNull(),
-  profile_url: text("profile_url").notNull(),
+  profile_url: text("profile_url"),
 });

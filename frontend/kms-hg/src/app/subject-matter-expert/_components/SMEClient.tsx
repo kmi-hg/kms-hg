@@ -43,6 +43,9 @@ export default function SMEClient({ role }: SMEClientProps) {
 
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false); // Manage SuccessModal state
   const [successMessage, setSuccessMessage] = useState(""); // Success message
+  const [isProfileRemoved, setIsProfileRemoved] = useState(false);
+
+  const DEFAULT_PROFILE_URL = "/default-profile-picture.png";
 
   const AreaOfExpertiseOptions = [
     "Logistic",
@@ -108,13 +111,14 @@ export default function SMEClient({ role }: SMEClientProps) {
     setPreviewUrl(null);
     setIsEditMode(false);
     setSelectedSME(null);
+    setIsProfileRemoved(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (
-      (!profilePicture && !isEditMode) ||
+      (profilePicture && !isEditMode) ||
       !name.trim() ||
       !email.trim() ||
       !sbu.trim() ||
@@ -128,9 +132,12 @@ export default function SMEClient({ role }: SMEClientProps) {
     const formData = new FormData();
     if (profilePicture) {
       formData.append("profile_picture", profilePicture);
+    } else if (isEditMode && isProfileRemoved) {
+      formData.append("current_profile_url", DEFAULT_PROFILE_URL); // remove case
     } else if (selectedSME?.profile_url) {
-      formData.append("current_profile_url", selectedSME.profile_url); // Pass current profile URL if no new image
+      formData.append("current_profile_url", selectedSME.profile_url); // retain old photo
     }
+
     formData.append("name", name);
     formData.append("email", email);
     formData.append("sbu", sbu);
@@ -245,17 +252,14 @@ export default function SMEClient({ role }: SMEClientProps) {
                   document.getElementById("profile-upload")?.click()
                 }
               >
-                {previewUrl ? (
-                  <Image
-                    src={previewUrl}
-                    alt="Preview"
-                    layout="fill"
-                    objectFit="cover"
-                    className="rounded-full"
-                  />
-                ) : (
-                  "+"
-                )}
+                <Image
+                  src={previewUrl || DEFAULT_PROFILE_URL}
+                  alt="Preview"
+                  layout="fill"
+                  objectFit="cover"
+                  className="rounded-full"
+                />
+
                 <input
                   id="profile-upload"
                   type="file"
@@ -263,6 +267,19 @@ export default function SMEClient({ role }: SMEClientProps) {
                   className="hidden"
                   onChange={handleProfilePicChange}
                 />
+                {isEditMode && (
+                  <button
+                    type="button"
+                    className="absolute bottom-2 right-2 text-xs bg-red-500 text-white px-2 py-1 rounded"
+                    onClick={() => {
+                      setProfilePicture(null);
+                      setPreviewUrl(null);
+                      setIsProfileRemoved(true);
+                    }}
+                  >
+                    Remove
+                  </button>
+                )}
               </div>
             </div>
 
@@ -397,7 +414,9 @@ export default function SMEClient({ role }: SMEClientProps) {
               setBio(sme.bio);
               setSelectedExpertise(sme.area_of_expertise);
               setPreviewUrl(sme.profile_url);
+              setProfilePicture(null);
               setIsEditMode(true);
+              setIsProfileRemoved(false); // <-- reset state
               setActiveTab("add");
             }}
           />

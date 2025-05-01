@@ -18,10 +18,10 @@ export default function SMECard({
       <div className="flex justify-between items-start">
         <div className="h-[80px] w-[80px] rounded-full overflow-hidden bg-gray-200">
           <Image
-            src={profile_url}
+            src={profile_url || "/default-profile-picture.png"}
             alt={`${name}'s profile`}
             className="h-full w-full object-cover"
-            width={80} // Added width and height for Next.js Image optimization
+            width={80}
             height={80}
           />
         </div>
