@@ -1,12 +1,23 @@
 "use client";
 import { useState } from "react";
 import { signInAction } from "./loginAction";
-import { Eye, EyeOff } from "lucide-react"; // optional: if using icon library
-import Image from "next/image"; // Importing the Next.js Image component
+import { Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
 
 const SignInPage = () => {
   const [error, setError] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const handleSignIn = async (formdata: FormData) => {
+    setIsLoading(true);  // Set loading state to true when the sign-in button is clicked
+    const res = await signInAction(formdata);
+    setIsLoading(false); // Reset loading state after fetching
+
+    if (res) {
+      setError(res); // Show error if any
+    }
+  };
 
   return (
     <div className="min-h-screen flex bg-gray-50">
@@ -15,11 +26,10 @@ const SignInPage = () => {
           src="/Logo_Hasnur_Group.png"
           alt="Hasnur Group Logo"
           className="h-10 w-auto"
-          width={40} // You can adjust the width and height as per your needs
+          width={40}
           height={40}
         />
       </div>
-      {/* Column 1: Sign In Form (1/3) */}
       <div className="basis-1/3 flex items-center justify-center bg-white shadow-md">
         <div className="w-full px-[64px]">
           <h2 className="text-[40px] font-bold text-black text-left">
@@ -30,11 +40,10 @@ const SignInPage = () => {
           </p>
 
           <form
-            action={async (formdata) => {
-              const res = await signInAction(formdata);
-              if (res) {
-                setError(res);
-              }
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const formdata = new FormData(e.target as HTMLFormElement);
+              await handleSignIn(formdata);
             }}
             className="flex flex-col justify-center"
           >
@@ -84,20 +93,20 @@ const SignInPage = () => {
             <button
               type="submit"
               className="w-full py-3 bg-[#3A40D4] text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg[#2A31EA]"
+              disabled={isLoading}
             >
-              Sign In
+              {isLoading ? "Signing In..." : "Sign In"}
             </button>
           </form>
         </div>
       </div>
 
-      {/* Column 2: Image (2/3) */}
       <div className="basis-2/3 flex items-center justify-center p-3">
         <Image
           src="/cover_signin.png"
           alt="Cover Sign In"
           className="w-full h-full object-cover rounded-[24px]"
-          width={600} // Adjust width and height accordingly
+          width={600}
           height={400}
         />
       </div>
