@@ -4,6 +4,8 @@ import { knowledgeTable } from "@/db/schema/knowledge";
 import { db } from "../db";
 import { createClient } from "@supabase/supabase-js";
 import { v4 as uuidv4 } from "uuid";
+import { recentlyOpenedFiles } from "@/db/schema/recently-opened-files";
+import { document_views } from "@/db/schema/document-views";
 
 type FieldEnum =
   | "Corsec/Corplan"
@@ -266,6 +268,18 @@ export async function DELETE(req: Request) {
 
   // Hapus file dari Supabase
   await supabase.storage.from(bucket).remove([fileName]);
+
+  // Remove references from recently_opened_files table first
+  await db
+    .delete(recentlyOpenedFiles)
+    .where(eq(recentlyOpenedFiles.fileId, Number(id)));
+
+  // Remove references from document_views table
+  await db
+    .delete(document_views)
+    .where(eq(document_views.document_id, Number(id)));
+
+  // Now delete from knowledgeTable
   await db.delete(knowledgeTable).where(eq(knowledgeTable.id, Number(id)));
 
   return NextResponse.json({ message: "Deleted successfully." });
