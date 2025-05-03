@@ -3,11 +3,14 @@ import { useState } from "react";
 import { signInAction } from "./loginAction";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const SignInPage = () => {
   const [error, setError] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const router = useRouter();
 
   const handleSignIn = async (formdata: FormData) => {
     setIsLoading(true);  // Set loading state to true when the sign-in button is clicked

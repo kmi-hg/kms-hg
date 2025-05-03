@@ -109,7 +109,7 @@ export default function SMETable({
 
         <tbody>
           {sortedData.length === 0 ? (
-            <tr>
+            <tr className="flex items-center justify-center">
               <td colSpan={6} className="text-center py-3 text-gray-500">
                 No expert added
               </td>
@@ -155,31 +155,33 @@ export default function SMETable({
                 <td className="px-4 py-3 text-center text-[#85878B]">
                   {new Date(sme.id).toLocaleDateString("id-ID")}
                 </td>
-                <td className="px-4 py-3 flex gap-2 flex items-center justify-center">
-                  <button
-                    onClick={() => onEdit(sme)}
-                    className="border border-[#EAECEB] p-1 rounded-[4px] hover:bg-gray-50 w-full flex justify-center"
-                  >
-                    <Image
-                      src="/edit_icon.png"
-                      alt="Edit"
-                      className="h-[12px] w-[12px]"
-                      width={12}
-                      height={12}
-                    />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteConfirmation(sme)} // Open modal
-                    className="border border-[#EAECEB] p-1 rounded-[4px] hover:bg-gray-50 w-full flex justify-center"
-                  >
-                    <Image
-                      src="/delete_icon.png"
-                      alt="Delete"
-                      className="h-[12px] w-[11px]"
-                      width={11}
-                      height={12}
-                    />
-                  </button>
+                <td className="px-4 py-3">
+                  <div className="flex gap-2 items-center justify-center w-full">
+                    <button
+                      onClick={() => onEdit(sme)}
+                      className="border border-[#EAECEB] p-1 rounded-[4px] hover:bg-gray-50"
+                    >
+                      <Image
+                        src="/edit_icon.png"
+                        alt="Edit"
+                        width={12}
+                        height={12}
+                        className="h-[12px] w-[12px]"
+                      />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteConfirmation(sme)}
+                      className="border border-[#EAECEB] p-1 rounded-[4px] hover:bg-gray-50"
+                    >
+                      <Image
+                        src="/delete_icon.png"
+                        alt="Delete"
+                        width={11}
+                        height={12}
+                        className="h-[12px] w-[11px]"
+                      />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))

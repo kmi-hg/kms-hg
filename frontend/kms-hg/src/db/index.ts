@@ -1,14 +1,12 @@
 import "dotenv/config";
 import { PostgresJsDatabase, drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { smeTable } from "./schema/expert";
 import { knowledgeTable } from "./schema/knowledge";
 import { userTable } from "./schema/user";
 
 const connectionString = process.env.DATABASE_URL;
 
 const combinedSchema = {
-  smeTable,
   knowledgeTable,
   userTable,
 };

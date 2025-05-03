@@ -24,9 +24,10 @@ export default function SMEDetailModal({
   onClose,
   expert,
 }: SMEDetailModalProps) {
-  if (!isOpen || !expert) return null;
   const [previewUrl] = useState<string | null>(null);
   const DEFAULT_PROFILE_URL = "/default-profile-picture.png";
+
+  if (!isOpen || !expert) return null;
 
   return (
     <div className="fixed inset-0 flex items-center justify-center">

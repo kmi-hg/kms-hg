@@ -31,7 +31,7 @@ type RecentlyOpenedFile = {
 };
 
 export default function KnowledgeClient({ role }: KnowledgeClientProps) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [activeTab, setActiveTab] = useState<"overview" | "add">("overview");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
@@ -68,7 +68,9 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
 
   // Fetch knowledge items and their click rate when component mounts or when userId changes
   useEffect(() => {
-    if (!userId) return;
+    if (status !== "authenticated" || !session?.user?.id) return;
+
+    const userId = session.user.id;
 
     fetch(`/api/recently-opened-files?userId=${userId}`)
       .then((res) => {
@@ -88,7 +90,7 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
         console.error("Error fetching recently opened files:", error);
         setRecentlyOpenedFiles([]);
       });
-  }, [userId]);
+  }, [status, session]);
 
   // Fetch knowledge items only once when the component mounts
   useEffect(() => {
