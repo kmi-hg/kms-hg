@@ -5,23 +5,19 @@ import { v4 as uuidv4 } from "uuid";
 import { db } from "../db";
 import { smeTable } from "@/db/schema/expert";
 import { eq } from "drizzle-orm";
-
-// Define SBU enum list for validation
-const SBU_VALUES = [
-  "Logistic",
-  "Argo Forestry",
-  "Energy",
-  "Technology & Services",
-  "Education",
-  "Consumer",
-  "Investment",
-] as const;
-
-type SBUType = (typeof SBU_VALUES)[number];
+import {
+  CoreCompetencyEnum,
+  DepartmentEnum,
+  EntitasEnum,
+  ExpertiseEnum,
+  expertTable,
+} from "@/db/schema/sme";
 
 export async function GET() {
   try {
-    const smeData = await db.select().from(smeTable);
+    // Fetch data from expert_table
+    const smeData = await db.select().from(expertTable);
+
     return NextResponse.json(smeData);
   } catch (error) {
     console.error("Error fetching SME data:", error);
@@ -34,46 +30,110 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const formData = await req.formData();
-    const DEFAULT_PROFILE_URL = "/default-profile-picture.png"; // Add this near the top
+    console.log("📥 Incoming SME POST request");
 
-    const file = formData.get("profile_picture") as File;
+    const formData = await req.formData();
+    const DEFAULT_PROFILE_URL = "/default-profile-picture.png";
+
+    const file = formData.get("profile_picture") as File | null;
     const name = formData.get("name")?.toString().trim();
     const email = formData.get("email")?.toString().trim();
-    const sbu = formData.get("sbu")?.toString().trim();
+    const department = formData.get("department")?.toString().trim();
+    const position = formData.get("position")?.toString().trim();
+    const entitas = formData.get("entitas")?.toString().trim();
+    const expertise = formData.get("expertise")?.toString().trim();
     const bio = formData.get("bio")?.toString().trim();
-    const area_of_expertise = formData
-      .get("area_of_expertise")
-      ?.toString()
-      .trim();
+    const currentProfileUrl = formData.get("current_profile_url")?.toString();
+    const coreCompetency = formData
+      .getAll("core_competency[]")
+      .map((val) => val.toString().trim());
 
-    // Validation
-    if (!name || !email || !sbu || !bio || !area_of_expertise) {
+    console.log("🧾 Parsed form data:", {
+      name,
+      email,
+      department,
+      position,
+      entitas,
+      expertise,
+      bio,
+      coreCompetency,
+      currentProfileUrl,
+      hasFile: !!file,
+    });
+
+    // Validate required fields
+    if (
+      !name ||
+      !email ||
+      !department ||
+      !position ||
+      !entitas ||
+      !expertise ||
+      !bio ||
+      coreCompetency.length === 0
+    ) {
+      console.warn("⚠️ Missing required fields.");
       return NextResponse.json(
         { error: "Missing required fields." },
         { status: 400 }
       );
     }
 
-    if (!SBU_VALUES.includes(sbu as SBUType)) {
+    // Collect invalid values
+    const invalidEnums: Record<string, any[]> = {
+      department: [],
+      entitas: [],
+      expertise: [],
+      coreCompetency: [],
+    };
+
+    // Validate enums and log invalids
+    if (!DepartmentEnum.enumValues.includes(department as any)) {
+      invalidEnums.department.push(department);
+    }
+
+    if (!EntitasEnum.enumValues.includes(entitas as any)) {
+      invalidEnums.entitas.push(entitas);
+    }
+
+    if (!ExpertiseEnum.enumValues.includes(expertise as any)) {
+      invalidEnums.expertise.push(expertise);
+    }
+
+    const invalidCoreCompetencies = coreCompetency.filter(
+      (val) => !CoreCompetencyEnum.enumValues.includes(val as any)
+    );
+    if (invalidCoreCompetencies.length > 0) {
+      invalidEnums.coreCompetency.push(...invalidCoreCompetencies);
+    }
+
+    // If any invalid values exist, log and return error
+    const hasInvalid = Object.values(invalidEnums).some(
+      (arr) => arr.length > 0
+    );
+
+    if (hasInvalid) {
+      console.warn("⚠️ Invalid enum value(s) detected:", invalidEnums);
       return NextResponse.json(
-        { error: "Invalid SBU value." },
+        { error: "Invalid enum values.", details: invalidEnums },
         { status: 400 }
       );
     }
 
-    // Upload image to Supabase Storage
+    // Supabase setup
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
-    // Update inside POST handler
     let profile_url = DEFAULT_PROFILE_URL;
 
+    // Upload image if present
     if (file) {
+      console.log("📷 Uploading profile image...");
       const isImage = file.type.startsWith("image/");
       if (!isImage) {
+        console.warn("❌ Uploaded file is not an image.");
         return NextResponse.json(
           { error: "Only image files are allowed." },
           { status: 400 }
@@ -89,6 +149,7 @@ export async function POST(req: Request) {
         .upload(fileName, file, { contentType: file.type });
 
       if (uploadError) {
+        console.error("❌ Supabase upload error:", uploadError.message);
         return NextResponse.json(
           { error: uploadError.message },
           { status: 500 }
@@ -98,22 +159,36 @@ export async function POST(req: Request) {
       const { data: publicUrlData } = supabase.storage
         .from(bucket)
         .getPublicUrl(fileName);
+
       profile_url = publicUrlData?.publicUrl || DEFAULT_PROFILE_URL;
+      console.log("✅ Image uploaded. Public URL:", profile_url);
+    } else if (currentProfileUrl) {
+      profile_url = currentProfileUrl;
+      console.log("ℹ️ Using existing profile URL.");
     }
 
-    // Insert into database
-    await db.insert(smeTable).values({
+    // Construct payload for insert
+    const insertPayload = {
       name,
       email,
-      sbu: sbu as SBUType,
+      department: department as (typeof DepartmentEnum.enumValues)[number],
+      position,
+      entitas: entitas as (typeof EntitasEnum.enumValues)[number],
+      expertise: expertise as (typeof ExpertiseEnum.enumValues)[number],
+      core_competency:
+        coreCompetency as (typeof CoreCompetencyEnum.enumValues)[number][],
       bio,
-      area_of_expertise,
       profile_url,
-    });
+    };
 
+    console.log("📤 Inserting into database:", insertPayload);
+
+    await db.insert(expertTable).values(insertPayload);
+
+    console.log("✅ SME inserted successfully.");
     return NextResponse.json({ message: "SME uploaded successfully." });
   } catch (error) {
-    console.error("Error in POST /api/expert:", error);
+    console.error("❌ Error in POST /api/expert:", error);
     return NextResponse.json(
       { error: "Something went wrong." },
       { status: 500 }
@@ -129,7 +204,7 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "Missing ID" }, { status: 400 });
     }
 
-    await db.delete(smeTable).where(eq(smeTable.id, Number(id)));
+    await db.delete(expertTable).where(eq(expertTable.id, Number(id)));
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -140,6 +215,7 @@ export async function DELETE(req: Request) {
     );
   }
 }
+
 
 // app/api/expert/route.ts
 // Union types (match exactly what's in your schema)
@@ -161,106 +237,118 @@ type AreaOfExpertise =
   | "Consumer"
   | "Investment";
 
-export async function PUT(req: Request) {
-  try {
-    const formData = await req.formData();
-    const DEFAULT_PROFILE_URL = "/default-profile-picture.png"; // Add this near the top
-    const id = Number(formData.get("id"));
-    const name = formData.get("name")?.toString();
-    const email = formData.get("email")?.toString();
-    const sbuRaw = formData.get("sbu")?.toString();
-    const bio = formData.get("bio")?.toString();
-    const areaRaw = formData.get("area_of_expertise")?.toString();
-    const file = formData.get("profile_picture") as File | null;
-
-    if (!id || !name || !email || !sbuRaw || !bio || !areaRaw) {
-      return NextResponse.json(
-        { error: "Missing required fields." },
-        { status: 400 }
-      );
-    }
-
-    // Validate SBU and Area of Expertise
-    const allowedValues: SBU[] = [
-      "Logistic",
-      "Argo Forestry",
-      "Energy",
-      "Technology & Services",
-      "Education",
-      "Consumer",
-      "Investment",
-    ];
-
-    if (!allowedValues.includes(sbuRaw as SBU)) {
-      return NextResponse.json(
-        { error: "Invalid SBU value." },
-        { status: 400 }
-      );
-    }
-
-    if (!allowedValues.includes(areaRaw as AreaOfExpertise)) {
-      return NextResponse.json(
-        { error: "Invalid Area of Expertise." },
-        { status: 400 }
-      );
-    }
-
-    const sbu = sbuRaw as SBU;
-    const area_of_expertise = areaRaw as AreaOfExpertise;
-
-    let profile_url =
-      formData.get("current_profile_url")?.toString() || DEFAULT_PROFILE_URL;
-    // If a new profile picture is uploaded
-    if (file) {
-      // Upload the new profile image to Supabase
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
-
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${uuidv4()}.${fileExt}`;
-      const bucket = "sme-profile";
-
-      // Upload the new image
-      const { error: uploadError } = await supabase.storage
-        .from(bucket)
-        .upload(fileName, file, {
-          contentType: file.type,
-        });
-
-      if (uploadError) {
+  export async function PUT(req: Request) {
+    try {
+      const formData = await req.formData();
+      const DEFAULT_PROFILE_URL = "/default-profile-picture.png";
+  
+      const id = Number(formData.get("id"));
+      const name = formData.get("name")?.toString().trim();
+      const email = formData.get("email")?.toString().trim();
+      const department = formData.get("department")?.toString().trim();
+      const position = formData.get("position")?.toString().trim();
+      const entitas = formData.get("entitas")?.toString().trim();
+      const expertise = formData.get("expertise")?.toString().trim();
+      const bio = formData.get("bio")?.toString().trim();
+      const coreCompetency = formData
+        .getAll("core_competency[]")
+        .map((val) => val.toString().trim());
+  
+      const currentProfileUrl = formData.get("current_profile_url")?.toString();
+      const file = formData.get("profile_picture") as File | null;
+  
+      if (
+        !id ||
+        !name ||
+        !email ||
+        !department ||
+        !position ||
+        !entitas ||
+        !expertise ||
+        !bio ||
+        coreCompetency.length === 0
+      ) {
         return NextResponse.json(
-          { error: uploadError.message },
-          { status: 500 }
+          { error: "Missing required fields." },
+          { status: 400 }
         );
       }
-
-      const { data: publicUrlData } = supabase.storage
-        .from(bucket)
-        .getPublicUrl(fileName);
-      profile_url = publicUrlData?.publicUrl || DEFAULT_PROFILE_URL;
+  
+      // Validate enums
+      if (!DepartmentEnum.enumValues.includes(department as any)) {
+        return NextResponse.json({ error: "Invalid department" }, { status: 400 });
+      }
+  
+      if (!EntitasEnum.enumValues.includes(entitas as any)) {
+        return NextResponse.json({ error: "Invalid entitas" }, { status: 400 });
+      }
+  
+      if (!ExpertiseEnum.enumValues.includes(expertise as any)) {
+        return NextResponse.json({ error: "Invalid expertise" }, { status: 400 });
+      }
+  
+      const invalidCore = coreCompetency.filter(
+        (val) => !CoreCompetencyEnum.enumValues.includes(val as any)
+      );
+      if (invalidCore.length > 0) {
+        return NextResponse.json(
+          { error: "Invalid core competency", details: invalidCore },
+          { status: 400 }
+        );
+      }
+  
+      let profile_url = currentProfileUrl || DEFAULT_PROFILE_URL;
+  
+      if (file) {
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+  
+        const fileExt = file.name.split(".").pop();
+        const fileName = `${uuidv4()}.${fileExt}`;
+        const bucket = "sme-profile";
+  
+        const { error: uploadError } = await supabase.storage
+          .from(bucket)
+          .upload(fileName, file, { contentType: file.type });
+  
+        if (uploadError) {
+          return NextResponse.json(
+            { error: uploadError.message },
+            { status: 500 }
+          );
+        }
+  
+        const { data: publicUrlData } = supabase.storage
+          .from(bucket)
+          .getPublicUrl(fileName);
+        profile_url = publicUrlData?.publicUrl || DEFAULT_PROFILE_URL;
+      }
+  
+      await db
+        .update(expertTable)
+        .set({
+          name,
+          email,
+          department: department as (typeof DepartmentEnum.enumValues)[number],
+          position,
+          entitas: entitas as (typeof EntitasEnum.enumValues)[number],
+          expertise: expertise as (typeof ExpertiseEnum.enumValues)[number],
+          core_competency:
+            coreCompetency as (typeof CoreCompetencyEnum.enumValues)[number][],
+          bio,
+          profile_url,
+        })
+        .where(eq(expertTable.id, id));
+  
+      return NextResponse.json({ message: "SME updated successfully." });
+    } catch (error) {
+      console.error("❌ SME update error:", error);
+      return NextResponse.json(
+        { error: "Failed to update SME." },
+        { status: 500 }
+      );
     }
-
-    // Update SME in the database
-    await db
-      .update(smeTable)
-      .set({
-        name,
-        email,
-        sbu,
-        bio,
-        area_of_expertise,
-        profile_url, // Only update profile_url if a new image is uploaded
-      })
-      .where(eq(smeTable.id, id));
-
-    return NextResponse.json({ message: "SME updated successfully." });
-  } catch (error) {
-    console.error("SME update error:", error);
-    return NextResponse.json(
-      { error: "Failed to update SME." },
-      { status: 500 }
-    );
   }
-}
+  

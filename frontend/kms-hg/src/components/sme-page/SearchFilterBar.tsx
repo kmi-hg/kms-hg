@@ -6,12 +6,15 @@ interface SearchFilterBarProps {
   setSelectedAreaOfExpertise: (value: string) => void;
   isOpenAreaOfExpertise: boolean;
   setIsOpenAreaOfExpertise: (value: boolean) => void;
-  selectedSBU: string;
+
+  selectedSBU: string; // now used for Core Competency
   setSelectedSBU: (value: string) => void;
   isOpenSBU: boolean;
   setIsOpenSBU: (value: boolean) => void;
+
   AreaOfExpertiseOptions: string[];
-  SBUOptions: string[];
+  CoreCompetencyOptions: string[]; // ✅ ADD this to props
+
   viewMode: "grid" | "list";
   setViewMode: (value: "grid" | "list") => void;
   isOverview: boolean;
@@ -24,12 +27,15 @@ export default function SearchFilterBar({
   setSelectedAreaOfExpertise,
   isOpenAreaOfExpertise,
   setIsOpenAreaOfExpertise,
-  selectedSBU,
+
+  selectedSBU, // used as selectedCoreCompetency
   setSelectedSBU,
   isOpenSBU,
   setIsOpenSBU,
+
   AreaOfExpertiseOptions,
-  SBUOptions,
+  CoreCompetencyOptions,
+
   viewMode,
   setViewMode,
   isOverview,
@@ -55,9 +61,11 @@ export default function SearchFilterBar({
         <div className="relative w-[105px]">
           <button
             onClick={() => setIsOpenAreaOfExpertise(!isOpenAreaOfExpertise)}
-            className="w-[105px] h-[26px] rounded-[4px] border border-[#EBEBEB] px-2 text-xs flex items-center justify-between"
+            className="w-full h-[26px] rounded-[4px] border border-[#EBEBEB] px-2 text-xs flex items-center justify-between"
           >
-            <span className="text-[#6C6C6C] text-[10px]">{selectedAreaOfExpertise}</span>
+            <span className="text-[#6C6C6C] text-[10px]">
+              {selectedAreaOfExpertise}
+            </span>
             <div className="flex items-center">
               <FaCaretDown className="text-[#6C6C6C] text-[10px]" />
               {selectedAreaOfExpertise !== "Area of Expertise" && (
@@ -74,7 +82,7 @@ export default function SearchFilterBar({
             </div>
           </button>
           {isOpenAreaOfExpertise && (
-            <div className="absolute top-[28px] left-0 w-[105px] bg-white border border-[#EBEBEB] rounded-[4px] shadow-sm z-10">
+            <div className="absolute top-[28px] left-0 w-[105px] bg-white border border-[#EBEBEB] rounded-[4px] shadow-sm z-10 max-h-[200px] overflow-y-auto">
               {AreaOfExpertiseOptions.map((option) => (
                 <div
                   key={option}
@@ -91,20 +99,22 @@ export default function SearchFilterBar({
           )}
         </div>
 
-        {/* SBU Filter */}
+        {/* Core Competency Filter */}
         <div className="relative w-[105px]">
           <button
             onClick={() => setIsOpenSBU(!isOpenSBU)}
-            className="w-[105px] h-[26px] rounded-[4px] border border-[#EBEBEB] px-2 text-xs flex items-center justify-between"
+            className="w-full h-[26px] rounded-[4px] border border-[#EBEBEB] px-2 text-xs flex items-center justify-between"
           >
-            <span className="text-[#6C6C6C] text-[10px]">{selectedSBU}</span>
+            <span className="text-[#6C6C6C] text-[10px] truncate block max-w-[60px]">
+              {selectedSBU}
+            </span>
             <div className="flex items-center">
               <FaCaretDown className="text-[#6C6C6C] text-[10px]" />
-              {selectedSBU !== "SBU" && (
+              {selectedSBU !== "Core Competency" && (
                 <span
                   onClick={(e) => {
                     e.stopPropagation();
-                    setSelectedSBU("SBU");
+                    setSelectedSBU("Core Competency");
                   }}
                   className="ml-1 text-[10px] text-gray-500 cursor-pointer"
                 >
@@ -114,8 +124,8 @@ export default function SearchFilterBar({
             </div>
           </button>
           {isOpenSBU && (
-            <div className="absolute top-[28px] left-0 w-[105px] bg-white border border-[#EBEBEB] rounded-[4px] shadow-sm z-10">
-              {SBUOptions.map((option) => (
+            <div className="absolute top-[28px] left-0 w-[105px] bg-white border border-[#EBEBEB] rounded-[4px] shadow-sm z-10 max-h-[200px] overflow-y-auto">
+              {CoreCompetencyOptions.map((option) => (
                 <div
                   key={option}
                   onClick={() => {

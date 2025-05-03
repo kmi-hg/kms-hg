@@ -10,13 +10,16 @@ import SMETable from "@/components/sme-page/SMETable";
 import Image from "next/image";
 import SuccessModal from "@/components/sme-page/SuccessModal";
 
-interface SME {
+interface Expert {
   id: number;
   name: string;
   email: string;
   profile_url: string;
-  area_of_expertise: string;
-  sbu: string;
+  department: string; // Replaces the old 'sbu' field
+  position: string;
+  entitas: string; // New field for the entity the expert belongs to
+  expertise: string; // New field for the expert's expertise
+  core_competency: string[]; // Array for core competencies, as it's an enum array
   bio: string;
 }
 
@@ -25,74 +28,146 @@ type SMEClientProps = {
 };
 
 export default function SMEClient({ role }: SMEClientProps) {
-  const [smeList, setSmeList] = useState<SME[]>([]);
-  const [selectedSME, setSelectedSME] = useState<SME | null>(null);
+  // State declarations
+  const [smeList, setSmeList] = useState<Expert[]>([]);
+  const [selectedSME, setSelectedSME] = useState<Expert | null>(null);
   const [activeTab, setActiveTab] = useState<"overview" | "add">("overview");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedExpertise, setSelectedExpertise] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
-
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [sbu, setSbu] = useState("");
   const [bio, setBio] = useState("");
   const [isEditMode, setIsEditMode] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false); // Manage SuccessModal state
-  const [successMessage, setSuccessMessage] = useState(""); // Success message
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const [isProfileRemoved, setIsProfileRemoved] = useState(false);
-
   const [isLoading, setIsLoading] = useState(false);
 
   const DEFAULT_PROFILE_URL = "/default-profile-picture.png";
 
-  const AreaOfExpertiseOptions = [
-    "Logistic",
-    "Argo Forestry",
-    "Energy",
-    "Technology & Services",
-    "Education",
-    "Consumer",
-    "Investment",
-  ];
-  const SBUOptions = [...AreaOfExpertiseOptions];
+  const [department, setDepartment] = useState("");
+  const [position, setPosition] = useState("");
+  const [entitas, setEntitas] = useState("");
+  const [coreCompetency, setCoreCompetency] = useState<string[]>([]);
 
+  const DepartmentOptions = [
+    "Committee Nomination & Human Capital",
+    "Department Procurement (Holding)",
+    "Division Corporate Secretary",
+    "Department Risk Management",
+    "Department Hc Operations",
+    "Department Accounting & Tax",
+    "Department Finance",
+    "Department Legal & Corcomm",
+    "Department Hcgs Development",
+    "Department Infrastructure & Sys Adm",
+    "Direktorat Finance & Administration",
+    "Division Operations",
+    "Operation Office Presdir",
+    "Division Agribusiness",
+    "Department Agronomy",
+    "Section General Admin",
+    "Section Operation",
+    "Department Human Capital",
+    "Department General Services",
+    "She",
+    "Department Technical Maintenance",
+    "Department Business Solution",
+    "Departement Planning & Permit",
+    "Department Hrgs",
+  ];
+
+  const EntitasOptions = [
+    "PT CDI",
+    "PT HCT",
+    "PT HGI",
+    "PT HIS",
+    "PT HIT",
+    "PT SRP",
+    "PT HCK",
+    "PT BPP",
+    "PT EBL",
+  ];
+
+  const CoreCompetencyOptions = [
+    "Integrity",
+    "Stakeholders Orientation",
+    "Organizational Commitment",
+    "Teamwork",
+    "Achievement Orientation",
+    "Transformational Leadership",
+    "Problem Solving & Decisive Judgement",
+    "Planning & Organizing",
+    "Developing Others",
+    "Business Acumen",
+    "Continuous Improvement",
+    "Communication",
+  ];
+
+  // Options for Area of Expertise and SBU
+  const AreaOfExpertiseOptions = [
+    "Marketing & Sales",
+    "HC",
+    "Procurement",
+    "Legal",
+    "Risk Management",
+    "Finance",
+    "Corporate Communication",
+    "IT",
+    "Engineer",
+    "Operation",
+    "SHE",
+  ];
+
+  // Handling Filter Logic
   const {
     selectedFields: selectedAreaOfExpertise,
-    selectedType: selectedSBU,
+    selectedType: selectedCoreCompetency,
     isOpenFields: isOpenAreaOfExpertise,
-    isOpenType: isOpenSBU,
+    isOpenType: isOpenCoreCompetency,
     setSelectedFields: setSelectedAreaOfExpertise,
-    setSelectedType: setSelectedSBU,
+    setSelectedType: setSelectedCoreCompetency,
     setIsOpenFields: setIsOpenAreaOfExpertise,
-    setIsOpenType: setIsOpenSBU,
+    setIsOpenType: setIsOpenCoreCompetency,
   } = useFilter();
 
   useEffect(() => {
     setSelectedAreaOfExpertise("Area of Expertise");
-    setSelectedSBU("SBU");
-  }, [setSelectedAreaOfExpertise, setSelectedSBU]);
+    setSelectedCoreCompetency("Core Competency");
+  }, [setSelectedAreaOfExpertise, setSelectedCoreCompetency]);
 
+  // Fetching SME list from the API
   useEffect(() => {
     const fetchSMEs = async () => {
       try {
         const res = await fetch("/api/expert");
         const data = await res.json();
-        setSmeList(data);
+
+        // Make sure it's an array
+        if (Array.isArray(data)) {
+          setSmeList(data);
+        } else if (Array.isArray(data?.experts)) {
+          setSmeList(data.experts); // Or adjust this based on the actual key
+        } else {
+          console.error("Unexpected data format:", data);
+          setSmeList([]); // fallback to empty array
+        }
       } catch (error) {
         console.error("Failed to fetch SME data:", error);
+        setSmeList([]); // fallback to empty array on error
       }
     };
 
     fetchSMEs();
   }, []);
 
+  // Profile picture handler
   const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    console.log("Selected file:", file);
     if (file) {
       setProfilePicture(file);
       const reader = new FileReader();
@@ -103,10 +178,11 @@ export default function SMEClient({ role }: SMEClientProps) {
     }
   };
 
+  // Reset form fields
   const resetForm = () => {
     setName("");
     setEmail("");
-    setSbu("");
+    setDepartment("");
     setBio("");
     setSelectedExpertise("");
     setProfilePicture(null);
@@ -116,6 +192,7 @@ export default function SMEClient({ role }: SMEClientProps) {
     setIsProfileRemoved(false);
   };
 
+  // Submit handler for adding/updating SME
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -125,7 +202,7 @@ export default function SMEClient({ role }: SMEClientProps) {
       (profilePicture && !isEditMode) ||
       !name.trim() ||
       !email.trim() ||
-      !sbu.trim() ||
+      !department.trim() ||
       !bio.trim() ||
       !selectedExpertise.trim()
     ) {
@@ -137,16 +214,19 @@ export default function SMEClient({ role }: SMEClientProps) {
     if (profilePicture) {
       formData.append("profile_picture", profilePicture);
     } else if (isEditMode && isProfileRemoved) {
-      formData.append("current_profile_url", DEFAULT_PROFILE_URL); // remove case
+      formData.append("current_profile_url", DEFAULT_PROFILE_URL); // Remove profile picture
     } else if (selectedSME?.profile_url) {
-      formData.append("current_profile_url", selectedSME.profile_url); // retain old photo
+      formData.append("current_profile_url", selectedSME.profile_url); // Retain existing picture
     }
 
     formData.append("name", name);
     formData.append("email", email);
-    formData.append("sbu", sbu);
+    formData.append("department", department);
     formData.append("bio", bio);
-    formData.append("area_of_expertise", selectedExpertise);
+    formData.append("expertise", selectedExpertise);
+    formData.append("position", position);
+    formData.append("entitas", entitas);
+    coreCompetency.forEach((val) => formData.append("core_competency[]", val));
 
     if (isEditMode && selectedSME) {
       formData.append("id", String(selectedSME.id));
@@ -176,30 +256,31 @@ export default function SMEClient({ role }: SMEClientProps) {
       console.error(err);
       alert("Something went wrong!");
     } finally {
-      // Set loading state ke false setelah proses fetch selesai
       setIsLoading(false);
     }
   };
 
+  // Filtering SME list based on search query and filters
   const filteredSMEs = useMemo(() => {
+    if (!Array.isArray(smeList)) return [];
+
     return smeList.filter((item) => {
       const matchesSearch =
         item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.area_of_expertise
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        item.sbu.toLowerCase().includes(searchQuery.toLowerCase());
+        item.expertise.toLowerCase().includes(searchQuery.toLowerCase());
 
       const matchesExpertise =
         selectedAreaOfExpertise === "Area of Expertise" ||
-        item.area_of_expertise === selectedAreaOfExpertise;
+        item.expertise === selectedAreaOfExpertise;
 
-      const matchesSBU = selectedSBU === "SBU" || item.sbu === selectedSBU;
+      const matchesCoreCompetency =
+        selectedCoreCompetency === "Core Competency" ||
+        item.core_competency.includes(selectedCoreCompetency);
 
-      return matchesSearch && matchesExpertise && matchesSBU;
+      return matchesSearch && matchesExpertise && matchesCoreCompetency;
     });
-  }, [smeList, searchQuery, selectedAreaOfExpertise, selectedSBU]);
+  }, [smeList, searchQuery, selectedAreaOfExpertise, selectedCoreCompetency]);
 
   return (
     <div className="pt-[16px]">
@@ -212,17 +293,17 @@ export default function SMEClient({ role }: SMEClientProps) {
         setSelectedAreaOfExpertise={setSelectedAreaOfExpertise}
         isOpenAreaOfExpertise={isOpenAreaOfExpertise}
         setIsOpenAreaOfExpertise={setIsOpenAreaOfExpertise}
-        selectedSBU={selectedSBU}
-        setSelectedSBU={setSelectedSBU}
-        isOpenSBU={isOpenSBU}
-        setIsOpenSBU={setIsOpenSBU}
+        selectedSBU={selectedCoreCompetency} // sebelumnya selectedSBU
+        setSelectedSBU={setSelectedCoreCompetency}
+        isOpenSBU={isOpenCoreCompetency}
+        setIsOpenSBU={setIsOpenCoreCompetency}
         AreaOfExpertiseOptions={AreaOfExpertiseOptions}
-        SBUOptions={SBUOptions}
         viewMode={viewMode}
         setViewMode={setViewMode}
         isOverview={activeTab === "overview"}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
+        CoreCompetencyOptions={CoreCompetencyOptions}
       />
 
       <br />
@@ -247,7 +328,8 @@ export default function SMEClient({ role }: SMEClientProps) {
                   name={sme.name}
                   email={sme.email}
                   profile_url={sme.profile_url}
-                  area_of_expertise={sme.area_of_expertise}
+                  expertise={sme.expertise}
+                  core_competency={sme.core_competency}
                 />
               </div>
             ))}
@@ -255,9 +337,7 @@ export default function SMEClient({ role }: SMEClientProps) {
         )
       ) : (
         <>
-          {/* Add/Edit SME Form */}
           <form onSubmit={handleSubmit} className="flex gap-[50px]">
-            {/* Profile Picture Upload */}
             <div className="h-[210px] w-[210px] flex justify-center items-start">
               <div
                 className="w-[210px] h-[210px] rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-4xl cursor-pointer relative overflow-hidden"
@@ -272,7 +352,6 @@ export default function SMEClient({ role }: SMEClientProps) {
                   objectFit="cover"
                   className="rounded-full"
                 />
-
                 <input
                   id="profile-upload"
                   type="file"
@@ -296,7 +375,6 @@ export default function SMEClient({ role }: SMEClientProps) {
               </div>
             </div>
 
-            {/* Form Fields */}
             <div className="w-full flex flex-col gap-6">
               <div className="grid md:grid-cols-3 gap-[20px]">
                 <div>
@@ -325,15 +403,15 @@ export default function SMEClient({ role }: SMEClientProps) {
                 </div>
                 <div>
                   <label className="text-[18px] font-medium text-black">
-                    SBU
+                    Department
                   </label>
                   <select
-                    value={sbu}
-                    onChange={(e) => setSbu(e.target.value)}
+                    value={department}
+                    onChange={(e) => setDepartment(e.target.value)}
                     className="w-full border border-gray-300 rounded-md px-3 py-2 mt-[12px] text-black"
                   >
-                    <option value="">Select SBU</option>
-                    {SBUOptions.map((option) => (
+                    <option value="">Select Department</option>
+                    {DepartmentOptions.map((option) => (
                       <option key={option} value={option}>
                         {option}
                       </option>
@@ -342,50 +420,117 @@ export default function SMEClient({ role }: SMEClientProps) {
                 </div>
               </div>
 
-              <div className="grid md:grid-cols-3 gap-[20px]">
-                <div className="md:col-span-2">
-                  <label className="text-[18px] font-medium text-black">
-                    Bio
-                  </label>
-                  <textarea
-                    className="w-full border border-gray-300 rounded-md mt-[12px] px-3 py-2 h-[150px] text-black"
-                    placeholder="Enter bio"
-                    value={bio}
-                    onChange={(e) => setBio(e.target.value)}
-                  />
+              <div className="grid md:grid-cols-3 gap-[20px] mt-6">
+                {/* LEFT: 2/3 */}
+                <div className="md:col-span-2 flex flex-col gap-6">
+                  <div className="grid md:grid-cols-2 gap-[20px]">
+                    <div>
+                      <label className="text-[18px] font-medium text-black">
+                        Position
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 mt-[12px] text-black"
+                        placeholder="Enter position"
+                        value={position}
+                        onChange={(e) => setPosition(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[18px] font-medium text-black">
+                        Entitas
+                      </label>
+                      <select
+                        value={entitas}
+                        onChange={(e) => setEntitas(e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 mt-[12px] text-black"
+                      >
+                        <option value="">Select Entitas</option>
+                        {EntitasOptions.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-[20px]">
+                    <div>
+                      <label className="text-[18px] font-medium text-black">
+                        Bio
+                      </label>
+                      <textarea
+                        className="w-full border border-gray-300 rounded-md mt-[12px] px-3 py-2 h-[100px] text-black"
+                        placeholder="Enter bio"
+                        value={bio}
+                        onChange={(e) => setBio(e.target.value)}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[18px] font-medium text-black mb-1 block">
+                        Area of Expertise
+                      </label>
+                      <div className="flex flex-wrap gap-2 mt-[12px]">
+                        {AreaOfExpertiseOptions.map((area) => {
+                          const isActive = selectedExpertise === area;
+                          return (
+                            <button
+                              key={area}
+                              type="button"
+                              onClick={() => setSelectedExpertise(area)}
+                              className={`rounded-[4px] px-[6px] py-[3px] text-[14px] font-semibold border ${
+                                isActive
+                                  ? "bg-[#3A40D4] text-white border-[#3A40D4]"
+                                  : "text-[#7F7F7F] border-[#c3c3c3] hover:bg-gray-100"
+                              }`}
+                            >
+                              + {area}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex flex-col justify-between">
-                  <div>
-                    <label className="text-[18px] font-medium text-black mb-1 block">
-                      Area of Expertise
-                    </label>
-                    <div className="flex flex-wrap gap-2 mt-[12px]">
-                      {AreaOfExpertiseOptions.map((area) => {
-                        const isActive = selectedExpertise === area;
-                        return (
-                          <button
-                            key={area}
-                            type="button"
-                            onClick={() => setSelectedExpertise(area)}
-                            className={`rounded-[4px] px-[6px] py-[3px] text-[14px] font-semibold border ${
-                              isActive
-                                ? "bg-[#3A40D4] text-white border-[#3A40D4]"
-                                : "text-[#7F7F7F] border-[#c3c3c3] hover:bg-gray-100"
-                            }`}
-                          >
-                            + {area}
-                          </button>
-                        );
-                      })}
-                    </div>
+                {/* RIGHT: 1/3 */}
+                <div>
+                  <label className="text-[18px] font-medium text-black">
+                    Core Competency
+                  </label>
+                  <div className="flex flex-wrap gap-2 mt-[12px]">
+                    {CoreCompetencyOptions.map((item) => {
+                      const isSelected = coreCompetency.includes(item);
+                      return (
+                        <button
+                          key={item}
+                          type="button"
+                          onClick={() =>
+                            setCoreCompetency((prev) =>
+                              isSelected
+                                ? prev.filter((val) => val !== item)
+                                : [...prev, item]
+                            )
+                          }
+                          className={`rounded-[4px] px-[6px] py-[3px] text-[14px] font-semibold border ${
+                            isSelected
+                              ? "bg-[#3A40D4] text-white border-[#3A40D4]"
+                              : "text-[#7F7F7F] border-[#c3c3c3] hover:bg-gray-100"
+                          }`}
+                        >
+                          + {item}
+                        </button>
+                      );
+                    })}
                   </div>
 
                   <div className="flex justify-end mt-4">
                     <button
                       type="submit"
                       className="bg-[#3A40D4] text-white px-6 py-2 rounded-[8px] text-[16px] transition w-[115px] h-[41px]"
-                      disabled={isLoading} // Menonaktifkan tombol saat loading
+                      disabled={isLoading}
                     >
                       {isLoading
                         ? isEditMode
@@ -406,7 +551,7 @@ export default function SMEClient({ role }: SMEClientProps) {
           <SMETable
             data={smeList}
             selectedAreaOfExpertise={selectedAreaOfExpertise}
-            selectedSBU={selectedSBU}
+            selectedCoreCompetency={selectedCoreCompetency}
             searchQuery={searchQuery}
             onDelete={async (id) => {
               try {
@@ -430,13 +575,16 @@ export default function SMEClient({ role }: SMEClientProps) {
               setSelectedSME(sme);
               setName(sme.name);
               setEmail(sme.email);
-              setSbu(sme.sbu);
               setBio(sme.bio);
-              setSelectedExpertise(sme.area_of_expertise);
+              setSelectedExpertise(sme.expertise);
               setPreviewUrl(sme.profile_url);
+              setDepartment(sme.department);
+              setPosition(sme.position);
+              setEntitas(sme.entitas);
+              setCoreCompetency(sme.core_competency);
               setProfilePicture(null);
               setIsEditMode(true);
-              setIsProfileRemoved(false); // <-- reset state
+              setIsProfileRemoved(false);
               setActiveTab("add");
             }}
           />
@@ -445,7 +593,7 @@ export default function SMEClient({ role }: SMEClientProps) {
 
       <SMEDetailModal
         isOpen={isDetailOpen}
-        sme={selectedSME}
+        expert={selectedSME} // Pass expert data here
         onClose={() => {
           setSelectedSME(null);
           setIsDetailOpen(false);
@@ -454,8 +602,8 @@ export default function SMEClient({ role }: SMEClientProps) {
 
       <SuccessModal
         isOpen={isSuccessModalOpen}
-        closeModal={() => setIsSuccessModalOpen(false)} // Close SuccessModal
-        message={successMessage} // Success message
+        closeModal={() => setIsSuccessModalOpen(false)}
+        message={successMessage}
       />
     </div>
   );

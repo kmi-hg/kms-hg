@@ -1,27 +1,32 @@
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image"; // Importing the Next.js Image component
 
-interface SME {
+interface Expert {
+  id: number;
   name: string;
   email: string;
-  sbu: string;
   profile_url: string;
-  area_of_expertise: string;
+  department: string; // Replaces the old 'sbu' field
+  entitas: string; // New field for the entity the expert belongs to
+  expertise: string; // New field for the expert's expertise
+  core_competency: string[]; // Array for core competencies, as it's an enum array
   bio: string;
 }
 
 interface SMEDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
-  sme: SME | null;
+  expert: Expert | null; // Updated to Expert
 }
 
 export default function SMEDetailModal({
   isOpen,
   onClose,
-  sme,
+  expert,
 }: SMEDetailModalProps) {
-  if (!isOpen || !sme) return null;
+  if (!isOpen || !expert) return null;
+  const [previewUrl] = useState<string | null>(null);
+  const DEFAULT_PROFILE_URL = "/default-profile-picture.png";
 
   return (
     <div className="fixed inset-0 flex items-center justify-center">
@@ -39,8 +44,8 @@ export default function SMEDetailModal({
         <div className="flex gap-6">
           <div className="flex-shrink-0 w-[300px] h-[300px] border border-[#9C9C9C] rounded-full overflow-hidden">
             <Image
-              src={sme.profile_url}
-              alt={sme.name}
+              src={previewUrl || DEFAULT_PROFILE_URL}
+              alt={expert.name}
               className="w-full h-full object-cover"
               width={300} // Added width and height for Next.js Image optimization
               height={300}
@@ -50,30 +55,32 @@ export default function SMEDetailModal({
             <div>
               <p className="text-[18px] text-black font-bold">Name</p>
               <p className="text-[16px] text-[#4E4E4E] font-reguler">
-                {sme.name}
+                {expert.name}
               </p>
             </div>
             <div>
-              <p className="text-[18px] text-black font-bold">SBU</p>
+              <p className="text-[18px] text-black font-bold">Expertise</p>
               <p className="text-[16px] text-[#4E4E4E] font-reguler">
-                {sme.sbu}
+                {expert.expertise}
               </p>
             </div>
             <div>
               <p className="text-[18px] text-black font-bold">
-                Area of Expertise
+                Core Competency
               </p>
-              <p className="text-[16px] text-[#4E4E4E] font-reguler">
-                {sme.area_of_expertise}
-              </p>
+              <ul className="text-[16px] text-[#4E4E4E] font-reguler">
+                {expert.core_competency.map((competency, index) => (
+                  <li key={index}>{competency}</li>
+                ))}
+              </ul>
             </div>
             <div>
               <p className="text-[18px] text-black font-bold">Email</p>
               <a
-                href={`mailto:${sme.email}`}
+                href={`mailto:${expert.email}`}
                 className="text-[16px] text-[#4E4E4E] font-reguler underline "
               >
-                {sme.email}
+                {expert.email}
               </a>
             </div>
           </div>
@@ -81,12 +88,14 @@ export default function SMEDetailModal({
 
         <div className="mt-6">
           <p className="text-[18px] text-black font-bold">Bio</p>
-          <p className="text-[16px] text-[#4E4E4E] font-reguler">{sme.bio}</p>
+          <p className="text-[16px] text-[#4E4E4E] font-reguler">
+            {expert.bio}
+          </p>
         </div>
 
         <div className="mt-6">
           <button
-            onClick={() => window.open(`mailto:${sme.email}`, "_blank")}
+            onClick={() => window.open(`mailto:${expert.email}`, "_blank")}
             className="w-full h-[41px] bg-[#3A40D4] text-white px-6 py-2 rounded-lg text-[18px] font-semibold hover:bg-blue-700 transition"
           >
             Contact Expert

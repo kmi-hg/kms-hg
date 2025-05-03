@@ -1,22 +1,22 @@
 import { useState, useMemo } from "react";
-import { SMEItem } from "@/types";
+import { ExpertItem } from "@/types";
 import { FaSortUp, FaSortDown } from "react-icons/fa";
 import DeleteConfirmationModal from "./DeleteConfirmationModal"; // Import the modal
 import Image from "next/image"; // Importing Next.js Image component
 
 type SMETableProps = {
-  data: SMEItem[];
+  data: ExpertItem[];
   selectedAreaOfExpertise: string;
-  selectedSBU: string;
+  selectedCoreCompetency: string;
   searchQuery: string;
-  onEdit: (sme: SMEItem) => void;
+  onEdit: (sme: ExpertItem) => void;
   onDelete: (id: number) => void;
 };
 
 export default function SMETable({
   data,
   selectedAreaOfExpertise,
-  selectedSBU,
+  selectedCoreCompetency,
   searchQuery,
   onEdit,
   onDelete,
@@ -26,7 +26,7 @@ export default function SMETable({
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedSMEToDelete, setSelectedSMEToDelete] =
-    useState<SMEItem | null>(null);
+    useState<ExpertItem | null>(null);
 
   const handleSortName = () => {
     const newDirection = sortDirection === "asc" ? "desc" : "asc";
@@ -38,21 +38,20 @@ export default function SMETable({
     return data.filter((item) => {
       const matchesExpertise =
         selectedAreaOfExpertise === "Area of Expertise" ||
-        item.area_of_expertise === selectedAreaOfExpertise;
+        item.expertise === selectedAreaOfExpertise;
 
-      const matchesSBU = selectedSBU === "SBU" || item.sbu === selectedSBU;
+      const matchesSBU =
+        selectedCoreCompetency === "Core Competency" ||
+        item.core_competency?.includes(selectedCoreCompetency); // ✅ Tambahkan filter Core Competency
 
       const matchesSearch =
         item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.area_of_expertise
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        item.sbu.toLowerCase().includes(searchQuery.toLowerCase());
+        item.expertise.toLowerCase().includes(searchQuery.toLowerCase());
 
       return matchesExpertise && matchesSBU && matchesSearch;
     });
-  }, [data, selectedAreaOfExpertise, selectedSBU, searchQuery]);
+  }, [data, selectedAreaOfExpertise, selectedCoreCompetency, searchQuery]);
 
   const sortedData = useMemo(() => {
     if (sortColumn === "name") {
@@ -68,7 +67,7 @@ export default function SMETable({
   }, [filteredData, sortColumn, sortDirection]);
 
   // Handle delete confirmation modal
-  const handleDeleteConfirmation = (sme: SMEItem) => {
+  const handleDeleteConfirmation = (sme: ExpertItem) => {
     setSelectedSMEToDelete(sme);
     setIsDeleteModalOpen(true);
   };
@@ -98,12 +97,16 @@ export default function SMETable({
                 ))}
             </th>
             <th className="px-4 py-3 text-left">Email</th>
+            <th className="px-4 py-3 text-left">Department</th>
+            <th className="px-4 py-3 text-left">Position</th>
+            <th className="px-4 py-3 text-left">Entitas</th>
             <th className="px-4 py-3 text-center">Area of Expertise</th>
-            <th className="px-4 py-3 text-center">SBU</th>
+            <th className="px-4 py-3 text-center">Core Competency</th>
             <th className="px-4 py-3 text-center">Upload Date</th>
             <th className="px-4 py-3 text-center">Operation</th>
           </tr>
         </thead>
+
         <tbody>
           {sortedData.length === 0 ? (
             <tr>
@@ -117,29 +120,42 @@ export default function SMETable({
                 key={sme.id}
                 className={index % 2 === 0 ? "bg-[#FCFBFC]" : "bg-white"}
               >
-                <td className="relative px-4 py-3 truncate max-w-[250px] text-[#85878B] group cursor-pointer">
+                <td className="px-4 py-3 text-left text-[#85878B]">
                   {sme.name}
-                  <div className="absolute z-50 hidden group-hover:block bg-white text-[#222] text-sm px-3 py-2 rounded-md shadow-lg border border-gray-200 w-max max-w-[300px] left-1/2 -translate-x-1/2 top-full mt-1">
-                    {sme.name}
-                  </div>
                 </td>
                 <td className="px-4 py-3 text-left text-[#85878B]">
                   {sme.email}
                 </td>
-                <td className="px-4 py-3 text-center">
-                  <span className="bg-gray-100 text-[#85878B] px-2 py-1 rounded text-[14px]">
-                    {sme.area_of_expertise}
-                  </span>
+                <td className="px-4 py-3 text-left text-[#85878B]">
+                  {sme.department}
+                </td>
+                <td className="px-4 py-3 text-left text-[#85878B]">
+                  {sme.position}
+                </td>
+                <td className="px-4 py-3 text-left text-[#85878B]">
+                  {sme.entitas}
                 </td>
                 <td className="px-4 py-3 text-center">
                   <span className="bg-gray-100 text-[#85878B] px-2 py-1 rounded text-[14px]">
-                    {sme.sbu}
+                    {sme.expertise}
                   </span>
+                </td>
+                <td className="px-4 py-3 text-center">
+                  <div className="flex flex-wrap gap-1 justify-center">
+                    {sme.core_competency?.map((item, idx) => (
+                      <span
+                        key={idx}
+                        className="bg-gray-100 text-[#85878B] px-2 py-1 rounded text-[12px]"
+                      >
+                        {item}
+                      </span>
+                    ))}
+                  </div>
                 </td>
                 <td className="px-4 py-3 text-center text-[#85878B]">
                   {new Date(sme.id).toLocaleDateString("id-ID")}
                 </td>
-                <td className="px-4 py-3 flex gap-2 justify-center">
+                <td className="px-4 py-3 flex gap-2 flex items-center justify-center">
                   <button
                     onClick={() => onEdit(sme)}
                     className="border border-[#EAECEB] p-1 rounded-[4px] hover:bg-gray-50 w-full flex justify-center"
