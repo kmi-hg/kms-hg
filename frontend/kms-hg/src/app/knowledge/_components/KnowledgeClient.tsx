@@ -64,7 +64,6 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
   const [, setLoading] = useState(true); // Define loading state
 
   const userRole = role;
-  const userId = session?.user?.id;
 
   // Fetch knowledge items and their click rate when component mounts or when userId changes
   useEffect(() => {
