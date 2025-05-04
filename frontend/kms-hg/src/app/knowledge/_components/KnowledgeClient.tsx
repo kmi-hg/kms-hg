@@ -15,7 +15,7 @@ import Image from "next/image";
 import KnowledgeTable from "../../../components/knowledge-page/KnowledgeTable";
 import SearchFilterBar from "../../../components/knowledge-page/SearchFilterBar";
 import { useSession } from "next-auth/react";
-import { KnowledgeItem } from "@/types"; // Importing KnowledgeItem type
+import { KnowledgeItem } from "@/types/knowledgeItem"; // Importing KnowledgeItem type
 
 type KnowledgeClientProps = {
   role: string;
@@ -176,6 +176,12 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
             iconSrc="/SME_Icon.png"
             title="Subject Matter Expert"
             description="Ask the Expert"
+          />
+          <FeatureCard
+            href={`/hasnur-chat?userId=${session?.user?.id ?? ""}`}
+            iconSrc="/HasnurChat_Icon.png"
+            title="Hasnur Chat"
+            description="Ask the AI"
           />
         </div>
       </section>
