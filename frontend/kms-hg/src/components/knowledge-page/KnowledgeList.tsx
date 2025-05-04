@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { KnowledgeCard } from "@/app";
-import type { KnowledgeItem } from "@/types";
+import type { KnowledgeItem } from "@/types/knowledgeItem";
 
 type KnowledgeListProps = {
   searchQuery: string;

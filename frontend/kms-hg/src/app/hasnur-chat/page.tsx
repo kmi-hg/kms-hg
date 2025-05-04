@@ -20,10 +20,15 @@ export default function HasnurChatPage() {
       .then((res) => res.json())
       .then((data) => {
         setRoomId(data.roomId);
-        setMessages(data.messages || []);
-      })
-      .catch((err) => {
-        console.error("Failed to load chat room:", err);
+        const mappedMessages = (data.messages || []).map((m: any) => ({
+          from: m.sender === "user" ? "user" : "bot",
+          text: m.content,
+          time: new Date(m.createdAt).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        }));
+        setMessages(mappedMessages);
       });
   }, [userId]);
 
@@ -40,16 +45,34 @@ export default function HasnurChatPage() {
     setMessages((prev) => [...prev, userMessage]);
 
     // Optional simulated bot reply
-    setTimeout(() => {
-      const botMessage: ChatMessage = {
-        from: "bot",
-        text: "Terima kasih! Ini adalah respon otomatis dari Hasnur AI.",
-        time: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      };
-      setMessages((prev) => [...prev, botMessage]);
+    setTimeout(async () => {
+      const aiText = "Terima kasih! Ini adalah respon otomatis dari Hasnur AI.";
+      const time = new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      // Tampilkan dulu di UI
+      setMessages((prev) => [...prev, { from: "bot", text: aiText, time }]);
+
+      // Kirim ke DB
+      try {
+        const res = await fetch(`/api/chat/${roomId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sender: "ai",
+            content: aiText,
+          }),
+        });
+
+        if (!res.ok) {
+          const errMsg = await res.text();
+          console.error("Failed to save AI message:", errMsg);
+        }
+      } catch (err) {
+        console.error("Error saving AI message:", err);
+      }
     }, 1000);
   };
 

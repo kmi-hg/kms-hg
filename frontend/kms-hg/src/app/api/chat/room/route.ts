@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { chatRooms, messages } from "@/db/schema/chatbot";
 import { eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
+import { userTable } from "@/db/schema/user";
 
 export async function GET(req: NextRequest) {
   const userId = req.nextUrl.searchParams.get("userId");
@@ -31,4 +32,25 @@ export async function GET(req: NextRequest) {
   await db.insert(chatRooms).values({ id: newRoomId, userId });
 
   return NextResponse.json({ roomId: newRoomId, messages: [] });
+}
+
+export async function POST() {
+  const userId = uuidv4();
+  const roomId = uuidv4();
+
+  await db.insert(userTable).values({
+    id: userId,
+    name: "Guest User",
+    nrp: `GUEST-${userId.slice(0, 6)}`,
+    password: "defaultpassword", // atau hash kosong
+    role: "Karyawan", // atau "KMI" sesuai enum
+  });
+
+  await db.insert(chatRooms).values({
+    id: roomId,
+    userId,
+    title: "Chat Baru",
+  });
+
+  return NextResponse.json({ userId, roomId });
 }
