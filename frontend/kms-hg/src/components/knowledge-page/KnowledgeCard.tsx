@@ -1,25 +1,22 @@
 "use client";
 
-import { KnowledgeItem } from "@/types";
+import { KnowledgeItem } from "@/types/knowledgeItem";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-// This function handles the double-click event
 export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
   const router = useRouter();
-  const { data: session } = useSession(); // Access the session data
+  const { data: session } = useSession();
 
   const handleDoubleClick = () => {
-    // Ensure that session data is available (user must be logged in)
     if (!session) {
       console.error("User is not logged in");
       return;
     }
 
-    const userId = session.user.id; // Get the logged-in user's ID from the session
+    const userId = session.user.id;
 
-    // Prepare the track object for MP3 files
     if (item.path && item.path.toLowerCase().trim().endsWith(".mp3")) {
       const track = {
         title: item.name,
@@ -40,21 +37,19 @@ export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
       window.open(item.path, "_blank");
     }
 
-    // Log the file in the recently opened files (send `fileId` and `userId`)
     fetch("/api/recently-opened-files", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        fileId: item.id, // Pass fileId from the KnowledgeCard item
-        userId: userId, // Pass the logged-in user's ID
+        fileId: item.id,
+        userId: userId,
       }),
     }).catch((error) => {
       console.error("Error adding to recently opened:", error);
     });
 
-    // Insert the document view into the 'document_views' table
     fetch("/api/document-views", {
       method: "POST",
       headers: {

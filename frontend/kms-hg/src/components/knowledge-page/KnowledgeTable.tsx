@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { KnowledgeItem } from "@/types";
+import { KnowledgeItem } from "@/types/knowledgeItem";
 import Modal from "@/components/knowledge-page/KnowledgeModal";
 import { FaSortUp, FaSortDown } from "react-icons/fa";
 import DeleteConfirmationModal from "../knowledge-page/DeleteConfirmationModal";

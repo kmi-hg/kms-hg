@@ -25,7 +25,6 @@ export default function RootLayout({
     <html lang="en" className={figtree.className}>
       <body>
         <SessionProvider>{children}</SessionProvider>{" "}
-        {/* Wrap children with SessionProvider */}
       </body>
     </html>
   );

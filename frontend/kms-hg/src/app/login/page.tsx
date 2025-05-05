@@ -10,12 +10,12 @@ const SignInPage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleSignIn = async (formdata: FormData) => {
-    setIsLoading(true); // Set loading state to true when the sign-in button is clicked
+    setIsLoading(true);
     const res = await signInAction(formdata);
-    setIsLoading(false); // Reset loading state after fetching
+    setIsLoading(false);
 
     if (res) {
-      setError(res); // Show error if any
+      setError(res);
     }
   };
 

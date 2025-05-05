@@ -1,4 +1,3 @@
-// db/schema/knowledge.ts
 import {
   pgTable,
   serial,

@@ -2,35 +2,29 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { supabase } from "@/lib/supabaseClient";
+import { JWT } from "next-auth/jwt";
 
 declare module "next-auth" {
-  /**
-   * Returned by `auth`, `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
-   */
   interface Session {
     user: {
       nrp: string;
       role: string;
-      id: string; // Adding the `id` field of type string (UUID)
+      id: string;
     };
   }
 
   interface User {
     nrp: string;
     role: string;
-    id: string; // Adding the `id` field of type string (UUID)
+    id: string;
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { JWT } from "next-auth/jwt";
-
 declare module "next-auth/jwt" {
-  /** Returned by the `jwt` callback and `auth`, when using JWT sessions */
   interface JWT {
     nrp: string;
     role: string;
-    id: string; // Adding the `id` field of type string (UUID)
+    id: string;
   }
 }
 
@@ -77,21 +71,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
+  
   pages: {
     signIn: "/login",
   },
+  
   callbacks: {
     authorized: async ({ auth }) => {
-      // Logged in users are authenticated, otherwise redirect to login page
       return !!auth;
     },
     jwt({ token, user }) {
       if (user) {
-        // User is available during sign-in
         token.name = user.name;
         token.nrp = user.nrp;
         token.role = user.role;
-        token.id = user.id; // Add user id (UUID) to the token
+        token.id = user.id;
       }
       return token;
     },
@@ -99,10 +93,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       session.user.name = token.name;
       session.user.nrp = token.nrp;
       session.user.role = token.role;
-      session.user.id = token.id; // Assign the user id (UUID) from token to session
+      session.user.id = token.id;
       return session;
     },
   },
+
   session: {
     strategy: "jwt",
     maxAge: 15 * 60,

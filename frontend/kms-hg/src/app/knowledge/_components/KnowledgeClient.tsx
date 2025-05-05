@@ -98,7 +98,6 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
         const res = await fetch("/api/knowledge");
         const data: KnowledgeItem[] = await res.json();
 
-        // Fetch the click rates for each document
         for (let i = 0; i < data.length; i++) {
           const resViews = await fetch(
             `/api/document-views?documentId=${data[i].id}`
@@ -106,13 +105,13 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
 
           const text = await resViews.text();
           if (!text) {
-            data[i].clickRate = 0; // Default to 0 if no views data
+            data[i].clickRate = 0; 
           } else {
             try {
               const viewsData = JSON.parse(text);
-              data[i].clickRate = viewsData.length || 0; // Set clickRate based on the number of views
+              data[i].clickRate = viewsData.length || 0; 
             } catch {
-              data[i].clickRate = 0; // Default to 0 if JSON parsing fails
+              data[i].clickRate = 0; 
             }
           }
         }
@@ -126,7 +125,7 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
     };
 
     fetchKnowledge();
-  }, []); // Empty dependency array to fetch only once on component mount
+  }, []); 
 
   if (!role) {
     return <div>Error: Role tidak ditemukan</div>;
@@ -237,7 +236,8 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
               style={{ display: "none" }}
             />
             <div
-              className="w-full h-[250px] border border-dashed border-[#D9D9D9] bg-[#FCFBFC] rounded-[8px] flex flex-col items-center justify-center text-center px-4"
+              className="w-full h-[250px] border border-dashed border-[#D9D9D9] bg-[#FCFBFC] rounded-[8px] 
+              flex flex-col items-center justify-center text-center px-4"
               onClick={openModal}
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleDrop}

@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aws-sdk/client-bedrock-agent-runtime": "^3.803.0",
     "@prisma/extension-accelerate": "^1.3.0",
     "@radix-ui/react-progress": "^1.1.3",
     "@radix-ui/react-slot": "^1.2.0",
