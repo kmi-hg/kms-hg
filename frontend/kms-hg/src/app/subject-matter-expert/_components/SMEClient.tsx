@@ -15,11 +15,11 @@ interface Expert {
   name: string;
   email: string;
   profile_url: string;
-  department: string; // Replaces the old 'sbu' field
+  department: string; 
   position: string;
-  entitas: string; // New field for the entity the expert belongs to
-  expertise: string; // New field for the expert's expertise
-  core_competency: string[]; // Array for core competencies, as it's an enum array
+  entitas: string; 
+  expertise: string; 
+  core_competency: string[]; 
   bio: string;
 }
 

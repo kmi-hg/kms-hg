@@ -37,7 +37,6 @@ export default function KnowledgeTable({
         const res = await fetch("/api/knowledge");
         const data: KnowledgeItem[] = await res.json();
 
-        // Fetch the click rates for each document
         for (let i = 0; i < data.length; i++) {
           const resViews = await fetch(
             `/api/document-views?documentId=${data[i].id}`
@@ -65,7 +64,7 @@ export default function KnowledgeTable({
     };
 
     fetchKnowledge();
-  }, []); // Fetch knowledge once when the component mounts
+  }, []); 
 
   const sortData = (column: SortColumn) => {
     let direction: SortDirection = "asc";
@@ -87,8 +86,8 @@ export default function KnowledgeTable({
       }
 
       if (column === "clickRate") {
-        const rateA = a.clickRate ?? 0; // Default to 0 if clickRate is undefined
-        const rateB = b.clickRate ?? 0; // Default to 0 if clickRate is undefined
+        const rateA = a.clickRate ?? 0; 
+        const rateB = b.clickRate ?? 0; 
         return direction === "asc" ? rateA - rateB : rateB - rateA;
       }
 
@@ -114,8 +113,8 @@ export default function KnowledgeTable({
 
       if (res.ok) {
         setKnowledgeItems((prev) => prev.filter((item) => item.id !== id));
-        setDeleteModalOpen(false); // Close the modal after deletion
-        setItemToDelete(null); // Reset item to delete
+        setDeleteModalOpen(false); 
+        setItemToDelete(null); 
       } else {
         const err = await res.json();
         alert(`Failed to delete: ${err.error}`);

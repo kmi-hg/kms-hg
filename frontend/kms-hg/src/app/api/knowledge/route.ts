@@ -266,20 +266,16 @@ export async function DELETE(req: Request) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  // Hapus file dari Supabase
   await supabase.storage.from(bucket).remove([fileName]);
 
-  // Remove references from recently_opened_files table first
   await db
     .delete(recentlyOpenedFiles)
     .where(eq(recentlyOpenedFiles.fileId, Number(id)));
 
-  // Remove references from document_views table
   await db
     .delete(document_views)
     .where(eq(document_views.document_id, Number(id)));
 
-  // Now delete from knowledgeTable
   await db.delete(knowledgeTable).where(eq(knowledgeTable.id, Number(id)));
 
   return NextResponse.json({ message: "Deleted successfully." });

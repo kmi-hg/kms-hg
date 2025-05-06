@@ -2,7 +2,7 @@
 
 import { pgTable, serial, varchar, text, pgEnum } from "drizzle-orm/pg-core";
 
-// Define the enum values
+
 export const DepartmentEnum = pgEnum("department_enum", [
   "Department Human Capital",
   "Committee Nomination & Human Capital",
@@ -27,7 +27,7 @@ export const DepartmentEnum = pgEnum("department_enum", [
   "SHE",
   "Department Technical Maintenance",
   "Department Business Solution",
-  "Departement Planning & Permit", // Note: "Departement" → maybe should be corrected to "Department"?
+  "Departement Planning & Permit", 
   "Department HRGS",
 ]);
 
@@ -72,7 +72,6 @@ export const CoreCompetencyEnum = pgEnum("core_competency_enum", [
   "Communication",
 ]);
 
-// Define the expert_table schema
 export const expertTable = pgTable("expert_table", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),

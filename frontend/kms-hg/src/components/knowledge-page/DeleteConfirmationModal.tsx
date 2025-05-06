@@ -24,7 +24,7 @@ const DeleteConfirmationModal = ({
           src="/delete_logo.png"
           alt="Delete"
           className="h-[48px] w-[48px]"
-          width={48}  // You can set the width and height based on your need
+          width={48} // You can set the width and height based on your need
           height={48}
         />
         <br />

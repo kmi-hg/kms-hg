@@ -63,6 +63,7 @@ export default function KnowledgeCard({ item }: { item: KnowledgeItem }) {
       console.error("Error adding document view:", error);
     });
   };
+  
   return (
     <div
       onDoubleClick={handleDoubleClick}

@@ -1,14 +1,13 @@
 // src/app/api/document-views/route.ts
 
 import { NextResponse } from "next/server";
-import { db } from "../db"; // Import db instance
+import { db } from "../db"; 
 import { document_views } from "@/db/schema/document-views";
 import { eq } from "drizzle-orm";
 
-// POST method handler to log a document view
 export async function POST(req: Request) {
   try {
-    const { userId, documentId } = await req.json(); // Extract userId and documentId from the request body
+    const { userId, documentId } = await req.json(); 
 
     if (!userId || !documentId) {
       return NextResponse.json(
@@ -17,11 +16,10 @@ export async function POST(req: Request) {
       );
     }
 
-    // Insert the document view into the database
     await db.insert(document_views).values({
-      user_id: userId, // The user ID
-      document_id: documentId, // The document ID
-      created_at: new Date(), // Timestamp when the document is viewed
+      user_id: userId, 
+      document_id: documentId, 
+      created_at: new Date(), 
     });
 
     return NextResponse.json({ message: "Document view successfully logged" });
@@ -34,10 +32,9 @@ export async function POST(req: Request) {
   }
 }
 
-// GET method handler to fetch views for a specific document
 export async function GET(req: Request) {
   try {
-    const { searchParams } = new URL(req.url); // Parse query parameters
+    const { searchParams } = new URL(req.url); 
     const documentId = searchParams.get("documentId");
 
     if (!documentId) {
@@ -47,13 +44,12 @@ export async function GET(req: Request) {
       );
     }
 
-    // Fetch all views for the given documentId from the database
     const views = await db
       .select()
       .from(document_views)
-      .where(eq(document_views.document_id, Number(documentId))); // Filter by userId
+      .where(eq(document_views.document_id, Number(documentId))); 
 
-    return NextResponse.json(views || []); // Return views or an empty array if no views
+    return NextResponse.json(views || []); 
   } catch (error) {
     console.error("Error fetching document views:", error);
     return NextResponse.json(

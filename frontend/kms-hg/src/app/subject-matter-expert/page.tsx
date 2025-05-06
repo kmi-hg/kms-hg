@@ -4,8 +4,6 @@ import BreadcrumbItem from "../../components/sme-page/BreadcrumbItem";
 import SMEClientWrapper from "./_components/SMEClientWrapper";
 import { Suspense } from "react";
 
-export const dynamic = "force-dynamic"; // Optional: if you want dynamic rendering
-
 export default function SMEPage() {
   return (
     <div className="pt-[60px] px-[80px] ">
