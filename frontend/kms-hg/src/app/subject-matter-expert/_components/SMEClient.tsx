@@ -147,18 +147,17 @@ export default function SMEClient({ role }: SMEClientProps) {
         const res = await fetch("/api/expert");
         const data = await res.json();
 
-        // Make sure it's an array
         if (Array.isArray(data)) {
           setSmeList(data);
         } else if (Array.isArray(data?.experts)) {
-          setSmeList(data.experts); // Or adjust this based on the actual key
+          setSmeList(data.experts); 
         } else {
           console.error("Unexpected data format:", data);
-          setSmeList([]); // fallback to empty array
+          setSmeList([]); 
         }
       } catch (error) {
         console.error("Failed to fetch SME data:", error);
-        setSmeList([]); // fallback to empty array on error
+        setSmeList([]); 
       }
     };
 

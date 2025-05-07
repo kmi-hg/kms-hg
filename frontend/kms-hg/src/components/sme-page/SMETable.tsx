@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { ExpertItem } from "@/types";
+import { ExpertItem } from "@/types/expertItem";
 import { FaSortUp, FaSortDown } from "react-icons/fa";
 import DeleteConfirmationModal from "./DeleteConfirmationModal"; // Import the modal
 import Image from "next/image"; // Importing Next.js Image component
@@ -66,7 +66,6 @@ export default function SMETable({
     return filteredData;
   }, [filteredData, sortColumn, sortDirection]);
 
-  // Handle delete confirmation modal
   const handleDeleteConfirmation = (sme: ExpertItem) => {
     setSelectedSMEToDelete(sme);
     setIsDeleteModalOpen(true);
@@ -74,7 +73,7 @@ export default function SMETable({
 
   const handleDelete = async () => {
     if (selectedSMEToDelete) {
-      await onDelete(selectedSMEToDelete.id); // Pass delete function
+      await onDelete(selectedSMEToDelete.id); 
       setIsDeleteModalOpen(false);
     }
   };

@@ -1,22 +1,22 @@
 import React, { useState } from "react";
-import Image from "next/image"; // Importing the Next.js Image component
+import Image from "next/image"; 
 
 interface Expert {
   id: number;
   name: string;
   email: string;
   profile_url: string;
-  department: string; // Replaces the old 'sbu' field
-  entitas: string; // New field for the entity the expert belongs to
-  expertise: string; // New field for the expert's expertise
-  core_competency: string[]; // Array for core competencies, as it's an enum array
+  department: string; 
+  entitas: string; 
+  expertise: string;
+  core_competency: string[]; 
   bio: string;
 }
 
 interface SMEDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
-  expert: Expert | null; // Updated to Expert
+  expert: Expert | null;
 }
 
 export default function SMEDetailModal({
