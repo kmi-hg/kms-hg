@@ -45,7 +45,7 @@ const MessageInput = ({ onSend, roomId }: Props) => {
     <div className="flex items-center border-t px-4 py-3 bg-white">
       <input
         type="text"
-        className="flex-1 border border-gray-300 rounded-full px-4 py-2 mr-2 text-sm focus:outline-none"
+        className="flex-1 border border-gray-300 rounded-full px-4 py-2 mr-2 text-lg text-black focus:outline-none"
         placeholder="Message to Hasnur AI..."
         value={text}
         onChange={(e) => setText(e.target.value)}

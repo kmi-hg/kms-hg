@@ -105,13 +105,13 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
 
           const text = await resViews.text();
           if (!text) {
-            data[i].clickRate = 0; 
+            data[i].clickRate = 0;
           } else {
             try {
               const viewsData = JSON.parse(text);
-              data[i].clickRate = viewsData.length || 0; 
+              data[i].clickRate = viewsData.length || 0;
             } catch {
-              data[i].clickRate = 0; 
+              data[i].clickRate = 0;
             }
           }
         }
@@ -125,7 +125,7 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
     };
 
     fetchKnowledge();
-  }, []); 
+  }, []);
 
   if (!role) {
     return <div>Error: Role tidak ditemukan</div>;
@@ -158,8 +158,11 @@ export default function KnowledgeClient({ role }: KnowledgeClientProps) {
           <p className="text-gray-500">You haven&apos;t opened any files</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[17px]">
-            {recentlyOpenedFiles.slice(0, 4).map((file) => (
-              <RecentlyOpenedCard key={file.fileId} file={file} />
+            {recentlyOpenedFiles.slice(0, 4).map((file, index) => (
+              <RecentlyOpenedCard
+                key={`${file.fileId}-${file.fileName}-${index}`} // Added `index` to ensure uniqueness
+                file={file}
+              />
             ))}
           </div>
         )}

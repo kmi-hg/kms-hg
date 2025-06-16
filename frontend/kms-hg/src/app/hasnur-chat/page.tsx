@@ -32,7 +32,7 @@ export default function HasnurChatPage() {
       });
   }, [userId]);
 
-  const handleSend = (text: string) => {
+  const handleSend = async (text: string) => {
     const userMessage: ChatMessage = {
       from: "user",
       text,
@@ -42,38 +42,45 @@ export default function HasnurChatPage() {
       }),
     };
 
+    // Add the user message first
     setMessages((prev) => [...prev, userMessage]);
 
-    // Optional simulated bot reply
-    setTimeout(async () => {
-      const aiText = "Terima kasih! Ini adalah respon otomatis dari Hasnur AI.";
+    try {
+      // First, call the AI backend to get the response
+      const aiResponse = await fetch(`/api/chat/${roomId}/ask`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: text }),
+      });
+
+      const aiData = await aiResponse.json();
+      const aiText = aiData.answer; // Expect the response to contain 'answer'
+
+      console.log("AI response:", aiText);
+
+      // Then, show the AI response in the UI
       const time = new Date().toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
       });
 
-      // Tampilkan dulu di UI
-      setMessages((prev) => [...prev, { from: "bot", text: aiText, time }]);
+      setMessages((prev) => [
+        ...prev,
+        { from: "bot", text: aiText, time }, // Add AI message here
+      ]);
 
-      // Kirim ke DB
-      try {
-        const res = await fetch(`/api/chat/${roomId}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            sender: "ai",
-            content: aiText,
-          }),
-        });
-
-        if (!res.ok) {
-          const errMsg = await res.text();
-          console.error("Failed to save AI message:", errMsg);
-        }
-      } catch (err) {
-        console.error("Error saving AI message:", err);
-      }
-    }, 1000);
+      // Finally, store the AI response in the database
+      await fetch(`/api/chat/${roomId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sender: "ai",
+          content: aiText,
+        }),
+      });
+    } catch (err) {
+      console.error("Error handling message:", err);
+    }
   };
 
   return (
